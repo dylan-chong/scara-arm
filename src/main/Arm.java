@@ -3,18 +3,19 @@ package main;
 
 /**
  * Class represents SCARA robotic arm.
- * 
+ *
  * @Arthur Roberts
  * @0.0
  */
 
 import ecs100.UI;
-import java.awt.Color;
-import java.util.*;
+
+import java.awt.*;
+import java.awt.geom.Point2D;
 
 public class Arm
 {
-    
+
     // fixed arm parameters (coordinates of the motor
     // (measured in pixels of the picture))
     // left motor
@@ -28,32 +29,32 @@ public class Arm
     // each of two motors has unique function which should be measured
     // linear function cam be described by two points
     // motor 1, point1 
-    private double pwm1_val_1; 
+    private double pwm1_val_1;
     private double theta1_val_1;
     // motor 1, point 2
-    private double pwm1_val_2; 
+    private double pwm1_val_2;
     private double theta1_val_2;
-    
+
     // motor 2, point 1
-    private double pwm2_val_1; 
+    private double pwm2_val_1;
     private double theta2_val_1;
     // motor 2, point 2
-    private double pwm2_val_2; 
+    private double pwm2_val_2;
     private double theta2_val_2;
-    
-    
+
+
     // current state of the arm
     private double theta1; // angle of the upper arm
     private double theta2;
-    
+
     private double xj1;     // positions of the joints
-    private double yj1; 
+    private double yj1;
     private double xj2;
-    private double yj2; 
+    private double yj2;
     private double xt;     // position of the tool
     private double yt;
     private boolean valid_state; // is state of the arm physically possible?
-    
+
     /**
      * Constructor for objects of class Arm
      */
@@ -122,10 +123,10 @@ public class Arm
    public void directKinematic(){
 
        // midpoint between joints
-       //double  xa =.... ;
-       //double  ya =.... ;
+       Point2D.Double t1 = getMidpointBetweenJoints();
+
        // distance between joints
-       //double d = ...;
+       double d = getDistanceBetweenJoints();
        if (d<2*r){
            valid_state = true;
          // half distance between tool positions
@@ -134,23 +135,23 @@ public class Arm
          // tool position
         // double xt = ...;
         // double yt = ...;
-         //  xt2 = xa - h.*cos(alpha-pi/2);
-         //  yt2 = ya - h.*sin(alpha-pi/2);
+         //  xt2 = t1.x - h.*cos(alpha-pi/2);
+         //  yt2 = t1.y - h.*sin(alpha-pi/2);
        } else {
            valid_state = false;
         }
-       
+
     }
-    
+
     // motor angles from tool position
     // updetes variables of the class
     public void inverseKinematic(double xt_new,double yt_new){
-         
+
         valid_state = true;
         xt = xt_new;
         yt = yt_new;
         valid_state = true;
-        double dx1 = xt - xm1; 
+        double dx1 = xt - xm1;
         double dy1 = yt - ym1;
         // distance between pem and motor
         double d1 = ...;
@@ -159,7 +160,7 @@ public class Arm
             valid_state = false;
             return;
         }
-        
+
         double l1 = d1/2;
         double h1 = Math.sqrt(r*r - d1*d1/4);
         // elbows positions
@@ -172,9 +173,9 @@ public class Arm
             //UI.println("Ange 1 -invalid");
             return;
         }
-        
+
         // theta12 = atan2(yj12 - ym1,xj12-xm1);
-        double dx2 = xt - xm2; 
+        double dx2 = xt - xm2;
         double dy2 = yt - ym2;
         double d2 = ...;
         if (d2>2*r){
@@ -184,7 +185,7 @@ public class Arm
         }
 
         double l2 = d2/2;
-        
+
         double h2 = Math.sqrt(r*r - d2*d2/4);
         // elbows positions
         xj2 = ...;
@@ -196,12 +197,12 @@ public class Arm
             //UI.println("Ange 2 -invalid");
             return;
         }
-        
+
         //UI.printf("xt:%3.1f, yt:%3.1f\n",xt,yt);
         //UI.printf("theta1:%3.1f, theta2:%3.1f\n",theta1*180/Math.PI,theta2*180/Math.PI);
         return;
     }
-    
+
     // returns angle of motor 1
     public double get_theta1(){
         return theta1;
@@ -215,7 +216,7 @@ public class Arm
         theta1 = t1;
         theta2 = t2;
     }
-    
+
     // returns motor control signal
     // for motor to be in position(angle) theta1
     // linear intepolation
@@ -229,5 +230,43 @@ public class Arm
         //pwm = (int)(pwm2_90 + (theta2 - 90)*pwm2_slope);
         return pwm;
     }
-    
+
+    /**
+     * Just as a shorthand
+     * @return
+     */
+    private double getXjDiff() {
+        return xj2 - xj1;
+    }
+
+    /**
+     * Just as a shorthand
+     * @return
+     */
+    private double getYjDiff() {
+        return yj2 - yj1;
+    }
+
+    private Point2D.Double getMidpointBetweenJoints() {
+        double xA = xj1 + 0.5 * getXjDiff();
+        double yA = yj1 + 0.5 * getYjDiff();
+
+        double h = Math.sqrt(
+                Math.pow(r, 2) -
+                        (Math.pow(getXjDiff() / 2, 2) + Math.pow(getYjDiff() / 2, 2))
+        );
+
+        double alpha = Math.atan(getYjDiff() / getXjDiff());
+        double trigArg = Math.PI / 2 - alpha;
+
+        return new Point2D.Double(
+                xA + h * Math.cos(trigArg),
+                yA - h * Math.sin(trigArg)
+        );
+    }
+
+    private double getDistanceBetweenJoints() {
+        return Math.sqrt(Math.pow(getXjDiff(), 2) + Math.pow(getYjDiff(), 2));
+    }
+
  }
