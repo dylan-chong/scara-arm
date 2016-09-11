@@ -15,12 +15,15 @@ import java.util.*;
 public class Arm
 {
     
-    // fixed arm parameters
-    private int xm1;  // coordinates of the motor(measured in pixels of the picture)
-    private int ym1;
-    private int xm2;
-    private int ym2;
-    private double r;  // length of the upper/fore arm
+    // fixed arm parameters (coordinates of the motor
+    // (measured in pixels of the picture))
+    // left motor
+    private static final int xm1 = 276;
+    private static final int ym1 = 111;
+    // right motor
+    private static final int xm2 = 374;
+    private static final int ym2 = 108;
+    private static final double r = 156.0;  // length of the upper/fore arm
     // parameters of servo motors - linear function pwm(angle)
     // each of two motors has unique function which should be measured
     // linear function cam be described by two points
@@ -56,16 +59,11 @@ public class Arm
      */
     public Arm()
     {
-        xm1 = 290; // set motor coordinates
-        ym1 = 372;
-        xm2 = 379;
-        ym2 = 374;
-        r = 156.0;
         theta1 = -90.0*Math.PI/180.0; // initial angles of the upper arms
         theta2 = -90.0*Math.PI/180.0;
         valid_state = false;
     }
-  
+
     // draws arm on the canvas
     public void draw()
     {
@@ -77,7 +75,7 @@ public class Arm
         yj1 = ym1 + r*Math.sin(theta1);
         xj2 = xm2 + r*Math.cos(theta2);
         yj2 = ym2 + r*Math.sin(theta2);
-        
+
         //draw motors and write angles
         int mr = 20;
         UI.setLineWidth(5);
@@ -91,7 +89,7 @@ public class Arm
         UI.drawString(out_str, xm1-2*mr,ym1-mr/2+3*mr);
         out_str=String.format("ym1=%d",ym1);
         UI.drawString(out_str, xm1-2*mr,ym1-mr/2+4*mr);
-        // ditto for second motor                
+        // ditto for second motor
         out_str = String.format("t2=%3.1f",theta2*180/Math.PI);
         UI.drawString(out_str, xm2+2*mr,ym2-mr/2+2*mr);
         out_str=String.format("xm2=%d",xm2);
@@ -101,7 +99,7 @@ public class Arm
         // draw Field Of View
         UI.setColor(Color.GRAY);
         UI.drawRect(0,0,640,480);
-         
+
        // it can b euncommented later when
        // kinematic equations are derived
         if ( valid_state) {
@@ -116,13 +114,13 @@ public class Arm
           double rt = 20;
           UI.drawOval(xt-rt/2,yt-rt/2,rt,rt);
         }
-        
+
    }
-    
-   // calculate tool position from motor angles 
+
+   // calculate tool position from motor angles
    // updates variable in the class
    public void directKinematic(){
-       
+
        // midpoint between joints
        //double  xa =.... ;
        //double  ya =.... ;
