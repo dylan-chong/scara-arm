@@ -262,9 +262,20 @@ public class Arm {
      * @return
      */
     private double getDistanceBetweenPenAndMotor(int motorNum) {
-        // TODO get position of pen from Devon
-        System.out.println("CALCULATION NOT DONE Arm.getDistanceBetweenPenAndMotor()");
-        return 0;
+        double xPart;
+        double yPart;
+        switch (motorNum) {
+            case 1:
+                xPart = Math.pow(xt - xm1, 2);
+                yPart = Math.pow(yt - ym1, 2);
+                break;
+            case 2:
+                xPart = Math.pow(xt - xm2, 2);
+                yPart = Math.pow(yt - ym2, 2);
+                break;
+            default:
+                throw new IllegalArgumentException("motorNum must be 1 or 2");
+        }
+        return Math.sqrt(xPart + yPart);
     }
-
 }
