@@ -253,19 +253,7 @@ public class Arm {
     private Point2D.Double getMidpointBetweenJoints() {
         double xA = xj1 + 0.5 * getXjDiff();
         double yA = yj1 + 0.5 * getYjDiff();
-
-        double h = Math.sqrt(
-                Math.pow(r, 2) -
-                        (Math.pow(getXjDiff() / 2, 2) + Math.pow(getYjDiff() / 2, 2))
-        );
-
-        double alpha = Math.atan(getYjDiff() / getXjDiff());
-        double trigArg = Math.PI / 2 - alpha;
-
-        return new Point2D.Double(
-                xA + h * Math.cos(trigArg),
-                yA - h * Math.sin(trigArg)
-        );
+        return new Point2D.Double(xA, yA);
     }
 
     private double getDistanceBetweenJoints() {
