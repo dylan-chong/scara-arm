@@ -149,15 +149,14 @@ public class Arm {
     // motor angles from tool position
     // updetes variables of the class
     public void inverseKinematic(double xt_new, double yt_new) {
-
         valid_state = true;
         xt = xt_new;
         yt = yt_new;
         valid_state = true;
-        double dx1 = xt - xm1;
-        double dy1 = yt - ym1;
-        // distance between pem and motor
-        double d1 = getDistanceBetweenPenAndMotor(1);
+        double dX1Part = Math.pow(xt - xm1, 2);
+        double dY1Part = Math.pow(yt - ym1, 2);
+        // distance between pen and motor
+        double d1 = Math.sqrt(dX1Part + dY1Part);
         if (d1 > 2 * r) {
             //UI.println("Arm 1 - can not reach");
             valid_state = false;
@@ -178,9 +177,10 @@ public class Arm {
         }
 
         // theta12 = atan2(yj12 - ym1,xj12-xm1);
-        double dx2 = xt - xm2;
-        double dy2 = yt - ym2;
-        double d2 = getDistanceBetweenPenAndMotor(2);
+        double dX2Part = Math.pow(xt - xm2, 2);
+        double dY2Part = Math.pow(yt - ym2, 2);
+        // distance between pen and motor
+        double d2 = Math.sqrt(dX2Part + dY2Part);
         if (d2 > 2 * r) {
             // UI.println("Arm 2 - can not reach");
             valid_state = false;
@@ -188,7 +188,6 @@ public class Arm {
         }
 
         double l2 = d2 / 2;
-
         double h2 = Math.sqrt(r * r - d2 * d2 / 4);
         // elbows positions
         xj2 = 0; // TODO value = ...
