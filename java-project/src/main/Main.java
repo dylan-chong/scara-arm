@@ -36,6 +36,7 @@ public class Main {
         UI.addButton("Load path XY", this::load_xy);
         UI.addButton("Save path Ang", this::save_ang);
         UI.addButton("Load path Ang:Play", this::load_ang);
+        UI.addButton("Send to Pi", this::sendToPi);
 
         // UI.addButton("Quit", UI::quit);
         UI.setMouseMotionListener(this::doMouse);
@@ -53,6 +54,7 @@ public class Main {
     public static void main(String[] args) {
         Main obj = new Main();
     }
+
 
     public void doKeys(String action) {
         UI.printf("Key :%s \n", action);
@@ -164,6 +166,11 @@ public class Main {
             arm.draw();
             UI.sleep(20);
         }
+    }
+
+    private void sendToPi() {
+        // TODO
+        PiController.sendDataToPi();
     }
 
 }
