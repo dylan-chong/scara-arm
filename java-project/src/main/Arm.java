@@ -1,4 +1,4 @@
-package main;
+ 
 
 
 /**
@@ -12,6 +12,7 @@ import ecs100.UI;
 
 import java.awt.*;
 import java.awt.geom.Point2D;
+import java.util.*;
 
 public class Arm {
 
@@ -120,24 +121,29 @@ public class Arm {
     public void directKinematic() {
 
         // midpoint between joints
-        Point2D.Double t1 = getMidpointBetweenJoints();
+        double xA = xj1 + 0.5 * getXjDiff();
+        double yA = yj1 + 0.5 * getYjDiff();
 
         // distance between joints
-        double d = getDistanceBetweenJoints();
+        double dXPart = Math.pow(getXjDiff(), 2);
+        double dYPart = Math.pow(getYjDiff(), 2);
+        double d = Math.sqrt(dXPart + dYPart);
+
         if (d < 2 * r) {
             valid_state = true;
+            
             // half distance between tool positions
-            //double  h = ...;
-            //double alpha= ...;
+            double hRPart = Math.pow(r, 2);
+            double hAPart = Math.pow(getXjDiff() / 2, 2) + Math.pow(getYjDiff() / 2, 2);
+            double h = Math.sqrt(hRPart - hAPart);
+            double alpha = Math.atan(getYjDiff() / getXjDiff());
+            
             // tool position
-            // double xt = ...;
-            // double yt = ...;
-            //  xt2 = t1.x - h.*cos(alpha-pi/2);
-            //  yt2 = t1.y - h.*sin(alpha-pi/2);
+            xt = xA + h * Math.cos(Math.PI / 2 - alpha);
+            yt = yA + h * Math.sin(Math.PI / 2 - alpha);
         } else {
             valid_state = false;
         }
-
     }
 
     // motor angles from tool position
@@ -248,16 +254,6 @@ public class Arm {
      */
     private double getYjDiff() {
         return yj2 - yj1;
-    }
-
-    private Point2D.Double getMidpointBetweenJoints() {
-        double xA = xj1 + 0.5 * getXjDiff();
-        double yA = yj1 + 0.5 * getYjDiff();
-        return new Point2D.Double(xA, yA);
-    }
-
-    private double getDistanceBetweenJoints() {
-        return Math.sqrt(Math.pow(getXjDiff(), 2) + Math.pow(getYjDiff(), 2));
     }
 
     /**
