@@ -151,7 +151,7 @@ public class Arm {
         double dx1 = xt - xm1;
         double dy1 = yt - ym1;
         // distance between pem and motor
-        double d1 = ...;
+        double d1 = getDistanceBetweenPenAndMotor(1);
         if (d1 > 2 * r) {
             //UI.println("Arm 1 - can not reach");
             valid_state = false;
@@ -174,7 +174,7 @@ public class Arm {
         // theta12 = atan2(yj12 - ym1,xj12-xm1);
         double dx2 = xt - xm2;
         double dy2 = yt - ym2;
-        double d2 = ...;
+        double d2 = getDistanceBetweenPenAndMotor(2);
         if (d2 > 2 * r) {
             // UI.println("Arm 2 - can not reach");
             valid_state = false;
@@ -185,10 +185,11 @@ public class Arm {
 
         double h2 = Math.sqrt(r * r - d2 * d2 / 4);
         // elbows positions
-        xj2 = ...;
-        yj2 = ...;
+        xj2 = 0; // TODO value = ...
+        yj2 = 0; // TODO value = ...
         // motor angles for both 1st elbow positions
-        theta2 = ...;
+        theta2 = 0; // TODO value = ...
+        System.out.println("VALUE NOT SET Arm.inverseKinematic()");
         if ((theta2 > 0) || (theta2 < -Math.PI)) {
             valid_state = false;
             //UI.println("Ange 2 -invalid");
@@ -269,6 +270,17 @@ public class Arm {
 
     private double getDistanceBetweenJoints() {
         return Math.sqrt(Math.pow(getXjDiff(), 2) + Math.pow(getYjDiff(), 2));
+    }
+
+    /**
+     *
+     * @param motorNum 1 or 2
+     * @return
+     */
+    private double getDistanceBetweenPenAndMotor(int motorNum) {
+        // TODO get position of pen from Devon
+        System.out.println("CALCULATION NOT DONE Arm.getDistanceBetweenPenAndMotor()");
+        return 0;
     }
 
 }
