@@ -1,6 +1,5 @@
 # Scara Arm
 (Pi IP moved to java-project/src/PiController.java)
-Rpi ip: 10.140.108.72
 
 # Servo Calibration
 

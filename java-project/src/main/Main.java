@@ -36,7 +36,7 @@ public class Main {
         UI.addButton("Load path XY", this::load_xy);
         UI.addButton("Save path Ang", this::save_ang);
         UI.addButton("Load path Ang:Play", this::load_ang);
-        UI.addButton("Send to Pi", this::sendToPi);
+        UI.addButton("Send data file to Pi", this::sendDataFileToPi);
 
         // UI.addButton("Quit", UI::quit);
         UI.setMouseMotionListener(this::doMouse);
@@ -168,9 +168,17 @@ public class Main {
         }
     }
 
-    private void sendToPi() {
-        // TODO
-        PiController.sendDataToPi();
+    private void sendDataFileToPi() {
+        try {
+            PiController
+                    .getInstance()
+                    .sendDataToPi(
+                            () -> UI.println("Done sending data")
+                    );
+        } catch (Exception e) {
+            UI.println("Error could not send data to Pi:\n" + e);
+            e.printStackTrace();
+        }
     }
 
 }
