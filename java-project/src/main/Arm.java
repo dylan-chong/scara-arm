@@ -153,10 +153,8 @@ public class Arm {
         xt = xt_new;
         yt = yt_new;
         valid_state = true;
-        double dX1Part = Math.pow(xt - xm1, 2);
-        double dY1Part = Math.pow(yt - ym1, 2);
         // distance between pen and motor
-        double d1 = Math.sqrt(dX1Part + dY1Part);
+        double d1 = getDistanceBetweenPenAndMotor(1);
         if (d1 > 2 * r) {
             //UI.println("Arm 1 - can not reach");
             valid_state = false;
@@ -176,11 +174,8 @@ public class Arm {
             return;
         }
 
-        // theta12 = atan2(yj12 - ym1,xj12-xm1);
-        double dX2Part = Math.pow(xt - xm2, 2);
-        double dY2Part = Math.pow(yt - ym2, 2);
         // distance between pen and motor
-        double d2 = Math.sqrt(dX2Part + dY2Part);
+        double d2 = getDistanceBetweenPenAndMotor(2);
         if (d2 > 2 * r) {
             // UI.println("Arm 2 - can not reach");
             valid_state = false;
