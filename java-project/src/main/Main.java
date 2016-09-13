@@ -169,9 +169,10 @@ public class Main {
     }
 
     private void sendDataFileToPi() {
+        UI.println("Attempting to send data...");
         try {
-            PiController
-                    .getInstance()
+            PiController.getInstance()
+                    // TODO save data to PiController.SRC_FILE file
                     .sendDataToPi(
                             () -> UI.println("Done sending data")
                     );
