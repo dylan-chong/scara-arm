@@ -167,19 +167,19 @@ public class Arm {
         // angle between T and M1
         //double angle1 = Math.atan2((yt - ym1), (xt - xm1));
         // elbows positions
-        double xA1 = xt + 0.5 * (xt - xm1 / 2);
-        double yA1 = yt + 0.5 * (yt - ym1 / 2);
+        double xA1 = xt + 0.5 * ((xt - xm1) / 2);
+        double yA1 = yt + 0.5 * ((yt - ym1) / 2);
         double alpha1 = Math.atan((yt - ym1) / (xt - xm1));
 
         // tool position
-        xj1 = xA1 - h1 * Math.cos(Math.PI / 2 - alpha1);
-        yj1 = yA1 - h1 * Math.sin(Math.PI / 2 - alpha1);
+        xj1 = xA1 - h1 * Math.cos(Math.PI / 2 + alpha1) * (xt > xm1 ? -1 : 1);
+        yj1 = yA1 - h1 * Math.sin(Math.PI / 2 + alpha1) * (xt > xm1 ? -1 : 1);
         
-        //xj1 = xt + r * Math.sin(angle1);
-        //yj1 = yt + r * Math.cos(angle1);
+        //xj1 = xt + r * Math.sin(alpha1) * (xt - xm1 < 0 ? 1 : -1);
+        //yj1 = yt + r * Math.cos(alpha1) * (xt - xm1 < 0 ? 1 : -1);
 
         theta1 = Math.atan2(yj1 - ym1, xj1 - xm1);
-        if ((theta1 < 0) || (theta1 > Math.PI)) {
+        if ((theta1 < 0) || (theta1 > Math.PI * 2)) {
             UI.println("Angle 1 - invalid");
             valid_state = false;
             return;
@@ -198,18 +198,18 @@ public class Arm {
         // angle between T and M2
         //double angle2 = Math.atan2((yt - ym2), (xt - xm2));
         // elbows positions
-        double xA2 = xt + 0.5 * (xt - xm2 / 2);
-        double yA2 = yt + 0.5 * (yt - ym2 / 2);
+        double xA2 = xt + 0.5 * ((xt - xm2) / 2);
+        double yA2 = yt + 0.5 * ((yt - ym2) / 2);
         double alpha2 = Math.atan((yt - ym2) / (xt - xm2));
 
         // tool position
-        xj2 = xA2 - h2 * Math.cos(Math.PI / 2 - alpha2);
-        yj2 = yA2 - h2 * Math.sin(Math.PI / 2 - alpha2);
-        //xj2 = xt + r * Math.sin(angle2);
-        //yj2 = yt + r * Math.cos(angle2);
+        xj2 = xA2 - h2 * Math.cos(Math.PI / 2 + alpha2) * (xt < xm2 ? -1 : 1);
+        yj2 = yA2 - h2 * Math.sin(Math.PI / 2 + alpha2) * (xt < xm2 ? -1 : 1);
+        //xj2 = xt + r * Math.sin(alpha2);
+        //yj2 = yt + r * Math.cos(alpha2);
 
         theta2 = Math.atan2(yj2 - ym2, xj2 - xm2);
-        if ((theta2 < 0) || (theta2 > Math.PI)) {
+        if ((theta2 < 0) || (theta2 > Math.PI * 2)) {
             UI.println("Angle 2 - invalid");
             valid_state = false;
             return;
