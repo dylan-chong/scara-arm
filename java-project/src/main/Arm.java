@@ -149,55 +149,74 @@ public class Arm {
     // motor angles from tool position
     // updetes variables of the class
     public void inverseKinematic(double xt_new, double yt_new) {
-        valid_state = true;
         xt = xt_new;
         yt = yt_new;
+        
         valid_state = true;
+        
         // distance between pen and motor
         double d1 = getDistanceBetweenPenAndMotor(1);
         if (d1 > 2 * r) {
-            //UI.println("Arm 1 - can not reach");
+            UI.println("Arm 1 - can not reach");
             valid_state = false;
             return;
         }
 
         double l1 = d1 / 2;
-        double h1 = Math.sqrt(r * r - d1 * d1 / 4);
+        double h1 = Math.sqrt(Math.pow(r, 2) - Math.pow(l1, 2));
+        // angle between T and M1
+        //double angle1 = Math.atan2((yt - ym1), (xt - xm1));
         // elbows positions
-        //xj1 = ...;
-        //yj1 = ...;
+        double xA1 = xt + 0.5 * (xt - xm1 / 2);
+        double yA1 = yt + 0.5 * (yt - ym1 / 2);
+        double alpha1 = Math.atan((yt - ym1) / (xt - xm1));
 
-        ///theta1 = ...;
-        if ((theta1 > 0) || (theta1 < -Math.PI)) {
+        // tool position
+        xj1 = xA1 - h1 * Math.cos(Math.PI / 2 - alpha1);
+        yj1 = yA1 - h1 * Math.sin(Math.PI / 2 - alpha1);
+        
+        //xj1 = xt + r * Math.sin(angle1);
+        //yj1 = yt + r * Math.cos(angle1);
+
+        theta1 = Math.atan2(yj1 - ym1, xj1 - xm1);
+        if ((theta1 < 0) || (theta1 > Math.PI)) {
+            UI.println("Angle 1 - invalid");
             valid_state = false;
-            //UI.println("Ange 1 -invalid");
             return;
         }
 
         // distance between pen and motor
         double d2 = getDistanceBetweenPenAndMotor(2);
         if (d2 > 2 * r) {
-            // UI.println("Arm 2 - can not reach");
+            UI.println("Arm 2 - can not reach");
             valid_state = false;
             return;
         }
 
         double l2 = d2 / 2;
-        double h2 = Math.sqrt(r * r - d2 * d2 / 4);
+        double h2 = Math.sqrt(Math.pow(r, 2) - Math.pow(l2, 2));
+        // angle between T and M2
+        //double angle2 = Math.atan2((yt - ym2), (xt - xm2));
         // elbows positions
-        xj2 = 0; // TODO value = ...
-        yj2 = 0; // TODO value = ...
-        // motor angles for both 1st elbow positions
-        theta2 = 0; // TODO value = ...
-        System.out.println("VALUE NOT SET Arm.inverseKinematic()");
-        if ((theta2 > 0) || (theta2 < -Math.PI)) {
+        double xA2 = xt + 0.5 * (xt - xm2 / 2);
+        double yA2 = yt + 0.5 * (yt - ym2 / 2);
+        double alpha2 = Math.atan((yt - ym2) / (xt - xm2));
+
+        // tool position
+        xj2 = xA2 - h2 * Math.cos(Math.PI / 2 - alpha2);
+        yj2 = yA2 - h2 * Math.sin(Math.PI / 2 - alpha2);
+        //xj2 = xt + r * Math.sin(angle2);
+        //yj2 = yt + r * Math.cos(angle2);
+
+        theta2 = Math.atan2(yj2 - ym2, xj2 - xm2);
+        if ((theta2 < 0) || (theta2 > Math.PI)) {
+            UI.println("Angle 2 - invalid");
             valid_state = false;
-            //UI.println("Ange 2 -invalid");
             return;
         }
 
-        //UI.printf("xt:%3.1f, yt:%3.1f\n",xt,yt);
-        //UI.printf("theta1:%3.1f, theta2:%3.1f\n",theta1*180/Math.PI,theta2*180/Math.PI);
+        UI.printf("xt:%3.1f, yt:%3.1f\n", xt, yt);
+        UI.printf("theta1:%3.1f, theta2:%3.1f\n", theta1 * 180 / Math.PI, theta2 * 180 / Math.PI);
         return;
     }
 
