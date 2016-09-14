@@ -36,6 +36,7 @@ public class Main {
         UI.addButton("Load path XY", this::load_xy);
         UI.addButton("Save path Ang", this::save_ang);
         UI.addButton("Load path Ang:Play", this::load_ang);
+        UI.addButton("Send data file to Pi", this::sendDataFileToPi);
 
         // UI.addButton("Quit", UI::quit);
         UI.setMouseMotionListener(this::doMouse);
@@ -53,6 +54,7 @@ public class Main {
     public static void main(String[] args) {
         Main obj = new Main();
     }
+
 
     public void doKeys(String action) {
         UI.printf("Key :%s \n", action);
@@ -163,6 +165,20 @@ public class Main {
         while (true) {
             arm.draw();
             UI.sleep(20);
+        }
+    }
+
+    private void sendDataFileToPi() {
+        UI.println("Attempting to send data...");
+        try {
+            PiController.getInstance()
+                    // TODO save data to PiController.SRC_FILE file
+                    .sendDataToPi(
+                            () -> UI.println("Done sending data")
+                    );
+        } catch (Exception e) {
+            UI.println("Error could not send data to Pi:\n" + e);
+            e.printStackTrace();
         }
     }
 
