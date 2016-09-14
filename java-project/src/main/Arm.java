@@ -170,13 +170,18 @@ public class Arm {
         double xA1 = xt + 0.5 * ((xt - xm1) / 2);
         double yA1 = yt + 0.5 * ((yt - ym1) / 2);
         double alpha1 = Math.atan((yt - ym1) / (xt - xm1));
+        double aAux = Math.PI;
 
         // tool position
-        xj1 = xA1 - h1 * Math.cos(Math.PI / 2 + alpha1) * (xt > xm1 ? -1 : 1);
-        yj1 = yA1 - h1 * Math.sin(Math.PI / 2 + alpha1) * (xt > xm1 ? -1 : 1);
+        //xj1 = xA1 - h1 * Math.cos(Math.PI / 2 + alpha1) * (xt > xm1 ? -1 : 1);
+        //yj1 = yA1 - h1 * Math.sin(Math.PI / 2 + alpha1) * (xt > xm1 ? -1 : 1);
         
-        //xj1 = xt + r * Math.sin(alpha1) * (xt - xm1 < 0 ? 1 : -1);
-        //yj1 = yt + r * Math.cos(alpha1) * (xt - xm1 < 0 ? 1 : -1);
+        xj1 = xt + r * Math.sin(aAux + alpha1);// * (xt > xm1 ? -1 : 1);
+        yj1 = yt + r * Math.cos(aAux + alpha1);// * (xt > xm1 ? -1 : 1);
+        
+        double dist1 = Math.sqrt(Math.pow(xt - xj1, 2) + Math.pow(yt - yj1, 2));
+        double dist2 = Math.sqrt(Math.pow(xm1 - xj1, 2) + Math.pow(ym1 - yj1, 2));
+        UI.printf("DEBUG: D1: %f D2: %f R:%f%n", dist1, dist2, r);
 
         theta1 = Math.atan2(yj1 - ym1, xj1 - xm1);
         if ((theta1 < 0) || (theta1 > Math.PI * 2)) {
@@ -203,10 +208,10 @@ public class Arm {
         double alpha2 = Math.atan((yt - ym2) / (xt - xm2));
 
         // tool position
-        xj2 = xA2 - h2 * Math.cos(Math.PI / 2 + alpha2) * (xt < xm2 ? -1 : 1);
-        yj2 = yA2 - h2 * Math.sin(Math.PI / 2 + alpha2) * (xt < xm2 ? -1 : 1);
-        //xj2 = xt + r * Math.sin(alpha2);
-        //yj2 = yt + r * Math.cos(alpha2);
+        //xj2 = xA2 - h2 * Math.cos(Math.PI / 2 + alpha2) * (xt < xm2 ? -1 : 1);
+        //yj2 = yA2 - h2 * Math.sin(Math.PI / 2 + alpha2) * (xt < xm2 ? -1 : 1);
+        xj2 = xt + r * Math.sin(aAux + alpha2);
+        yj2 = yt + r * Math.cos(aAux + alpha2);
 
         theta2 = Math.atan2(yj2 - ym2, xj2 - xm2);
         if ((theta2 < 0) || (theta2 > Math.PI * 2)) {
