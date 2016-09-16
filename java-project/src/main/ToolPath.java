@@ -106,9 +106,12 @@ public class ToolPath {
         }
     }
 
-    // save file with motor control values
-    public void save_pwm_file() {
-        // TODO ...
+    /**
+     * Saves PWM to string in a comma separated values format.
+     * Does not save the file
+     */
+    public String getPWMString() {
+
     }
 
 }

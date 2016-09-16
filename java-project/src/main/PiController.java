@@ -7,10 +7,10 @@ import java.util.Scanner;
  * Created by Dylan on 12/09/16.
  */
 class PiController {
-    static final String SRC_FILE = "pwm.txt"; // TODO this is temp for testing
+    static final String SRC_FILE = "pwm.csv";
     private static final String PI_IP = "10.140.109.205";
     private static final String PRIVATE_KEY_FILE = "keys/rpi";
-    private static final String DEST_FILE = "~/Arm/pwm.txt";
+    private static final String DEST_FILE = "~/Arm/pwm.csv";
 
     private static PiController instance;
     private boolean isRunning = false;
@@ -23,6 +23,7 @@ class PiController {
         return instance;
     }
 
+    // TODO save the data to a file
     void sendDataToPi(Runnable doneCallback) throws IOException,
             AlreadyRunningException {
 
@@ -48,7 +49,7 @@ class PiController {
 
     private class AlreadyRunningException extends Exception {
         AlreadyRunningException() {
-            super("Process already running");
+            super("Already trying to send data.\nPlease wait for finish");
         }
     }
 }

@@ -36,7 +36,7 @@ public class Main {
         UI.addButton("Load path XY", this::load_xy);
         UI.addButton("Save path Ang", this::save_ang);
         UI.addButton("Load path Ang:Play", this::load_ang);
-        UI.addButton("Send data file to Pi", this::sendDataFileToPi);
+        UI.addButton("Send PWM pulses to Pi", this::sendPWMToPi);
 
         // UI.addButton("Quit", UI::quit);
         UI.setMouseMotionListener(this::doMouse);
@@ -168,7 +168,7 @@ public class Main {
         }
     }
 
-    private void sendDataFileToPi() {
+    private void sendPWMToPi() {
         UI.println("Attempting to send data...");
         try {
             PiController.getInstance()
@@ -181,5 +181,4 @@ public class Main {
             e.printStackTrace();
         }
     }
-
 }
