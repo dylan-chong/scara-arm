@@ -78,7 +78,7 @@ class PiController {
 
     private class AlreadyRunningException extends Exception {
         AlreadyRunningException() {
-            super("Already trying to send data.\nPlease wait for finish");
+            super();
         }
     }
 }

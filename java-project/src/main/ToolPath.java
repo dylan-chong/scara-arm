@@ -20,17 +20,14 @@ import java.util.List;
 
 
 public class ToolPath {
-    int n_steps; //straight line segmentt will be broken
+    private int n_steps; //straight line segmentt will be broken
     // into that many sections
 
     // storage for angles and
     // moto control signals
-    ArrayList<Double> theta1_vector;
-    ArrayList<Double> theta2_vector;
-    ArrayList<Integer> pen_vector;
-    ArrayList<Integer> pwm1_vector;
-    ArrayList<Integer> pwm2_vector;
-    ArrayList<Integer> pwm3_vector;
+    private ArrayList<Double> theta1_vector;
+    private ArrayList<Double> theta2_vector;
+    private ArrayList<Integer> pen_vector;
 
     /**
      * Constructor for objects of class ToolPath
@@ -41,9 +38,6 @@ public class ToolPath {
         theta1_vector = new ArrayList<Double>();
         theta2_vector = new ArrayList<Double>();
         pen_vector = new ArrayList<Integer>();
-        pwm1_vector = new ArrayList<Integer>();
-        pwm2_vector = new ArrayList<Integer>();
-        pwm3_vector = new ArrayList<Integer>();
 
     }
 
@@ -96,23 +90,47 @@ public class ToolPath {
 
     }
 
-    // takes sequence of angles and converts it 
-    // into sequence of motor signals
-    public void convert_angles_to_pwm(Arm arm) {
-        // for each angle
+    /**
+     * Saves PWM to string in a comma separated values format.
+     * Does not save the file
+     *
+     * Takes sequence of angles and converts it
+     * into sequence of motor signals
+     *
+     * @param arm The arm used to convert PWMs
+     */
+    public String getPWMString(Arm arm) {
+        assert theta1_vector.size() == theta2_vector.size() :
+                "Uneven amount of vectors for left and right arms";
+        assert theta1_vector.size() == pen_vector.size() :
+                "Wrong amount of pen vectors";
+
+        List<Integer> pwm1_vector = new ArrayList<>();
+        List<Integer> pwm2_vector = new ArrayList<>();
+        List<Integer> pwm3_vector = new ArrayList<>();
+
+        // Convert vectors to PWM
         for (int i = 0; i < theta1_vector.size(); i++) {
             arm.set_angles(theta1_vector.get(i), theta2_vector.get(i));
             pwm1_vector.add(arm.get_pwm1());
             pwm2_vector.add(arm.get_pwm2());
+            pwm3_vector.add(pen_vector.get(i));
         }
-    }
 
-    /**
-     * Saves PWM to string in a comma separated values format.
-     * Does not save the file
-     */
-    public String getPWMString() {
+        // Convert to string
+        StringBuilder sb = new StringBuilder();
 
+        for (int i = 0; i < pwm1_vector.size(); i++) {
+            sb.append(pwm1_vector.get(i));
+            sb.append(pwm2_vector.get(i));
+            sb.append(pwm3_vector.get(i));
+
+            if (i < pwm1_vector.size() - 1) sb.append('\n');
+        }
+
+        String result = sb.toString();
+        assert result.split("\n").length == pwm1_vector.size();
+        return result;
     }
 
 }

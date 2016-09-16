@@ -170,9 +170,13 @@ public class Main {
 
     private void sendPWMToPi() {
         UI.println("Attempting to send data...");
+
+        UI.println("CONVERSION OF PWM TO STRING WILL FAIL");
+        // TODO NEXT work out what to do with tool_path
+
         try {
             PiController.getInstance().sendDataToPi(
-                    "test file\n blaaaa",
+                    tool_path.getPWMString(arm),
                     () -> UI.println("Done sending data")
             );
         } catch (Exception e) {
