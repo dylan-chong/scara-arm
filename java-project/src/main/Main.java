@@ -171,11 +171,10 @@ public class Main {
     private void sendPWMToPi() {
         UI.println("Attempting to send data...");
         try {
-            PiController.getInstance()
-                    // TODO save data to PiController.SRC_FILE file
-                    .sendDataToPi(
-                            () -> UI.println("Done sending data")
-                    );
+            PiController.getInstance().sendDataToPi(
+                    "test file\n blaaaa",
+                    () -> UI.println("Done sending data")
+            );
         } catch (Exception e) {
             UI.println("Error could not send data to Pi:\n" + e);
             e.printStackTrace();
