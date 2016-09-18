@@ -57,11 +57,17 @@ class PiController {
         Scanner terminalScanner = new Scanner(sshProcess.getInputStream());
         new Thread(() -> {
             System.out.println("WATCHING TERMINAL OUTPUT");
-            while (terminalScanner.hasNext())
+
+            int lines = 0;
+            while (terminalScanner.hasNext()) {
                 System.out.println("\tTERMINAL OUT: " +
                         terminalScanner.nextLine());
+                lines++;
+            }
 
-            System.out.println("NO MORE TERMINAL OUTPUT");
+            System.out.println("NO MORE TERMINAL OUTPUT (total of " + lines +
+                    "lines");
+
             isRunning = false;
             doneCallback.run();
         }).start();

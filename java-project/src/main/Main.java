@@ -176,24 +176,34 @@ public class Main {
     }
 
     /**
+     * Note: creates temporary graphical arm glitch
      * @return A new ToolPath object with all the data from Drawing
      */
     private ToolPath createToolPath() {
         ToolPath tp = new ToolPath();
         tp.convert_drawing_to_angles(drawing, arm);
+
+        if (tp.hasAnyDataPoints())
+            UI.println("[TOOLPATH] Ignore graphical glitch please");
         return tp;
     }
 
     private void sendPWMToPi() {
-        UI.println("Attempting to send data...");
+        ToolPath tp = createToolPath();
+        if (!tp.hasAnyDataPoints()) {
+            UI.println("[PWM] No data points to send");
+            return;
+        }
+
+        UI.println("[PWM] Attempting to send data...");
 
         try {
             PiController.getInstance().sendDataToPi(
-                    createToolPath().getPWMString(arm),
-                    () -> UI.println("Done sending data")
+                    tp.getPWMString(arm),
+                    () -> UI.println("[PWM] Probably successfully sending data")
             );
         } catch (Exception e) {
-            UI.println("Error could not send data to Pi:\n" + e);
+            UI.println("[PWM] Error could not send data to Pi:\n" + e);
             e.printStackTrace();
         }
     }

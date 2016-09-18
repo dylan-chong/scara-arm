@@ -20,25 +20,19 @@ import java.util.List;
 
 
 public class ToolPath {
-    private int n_steps; //straight line segmentt will be broken
+    private static final int n_steps = 50; //straight line segmentt will be broken
     // into that many sections
 
     // storage for angles and
     // moto control signals
-    private ArrayList<Double> theta1_vector;
-    private ArrayList<Double> theta2_vector;
-    private ArrayList<Integer> pen_vector;
+    private ArrayList<Double> theta1_vector = new ArrayList<Double>();
+    private ArrayList<Double> theta2_vector = new ArrayList<Double>();
+    private ArrayList<Integer> pen_vector = new ArrayList<Integer>();
 
     /**
      * Constructor for objects of class ToolPath
      */
     public ToolPath() {
-        // initialise instance variables
-        n_steps = 50;
-        theta1_vector = new ArrayList<Double>();
-        theta2_vector = new ArrayList<Double>();
-        pen_vector = new ArrayList<Integer>();
-
     }
 
     /**********CONVERT (X,Y) PATH into angles******************/
@@ -107,6 +101,7 @@ public class ToolPath {
                 "Uneven amount of vectors for left and right arms";
         assert theta1_vector.size() == pen_vector.size() :
                 "Wrong amount of pen vectors";
+        assert hasAnyDataPoints();
 
         List<Integer> pwm1_vector = new ArrayList<>();
         List<Integer> pwm2_vector = new ArrayList<>();
@@ -124,9 +119,11 @@ public class ToolPath {
         StringBuilder sb = new StringBuilder();
 
         for (int i = 0; i < pwm1_vector.size(); i++) {
-            sb.append(pwm1_vector.get(i));
-            sb.append(pwm2_vector.get(i));
-            sb.append(pwm3_vector.get(i));
+            sb .append(pwm1_vector.get(i))
+                    .append(',')
+                    .append(pwm2_vector.get(i))
+                    .append(',')
+                    .append(pwm3_vector.get(i));
 
             if (i < pwm1_vector.size() - 1) sb.append('\n');
         }
@@ -134,6 +131,10 @@ public class ToolPath {
         String result = sb.toString();
         assert result.split("\n").length == pwm1_vector.size();
         return result;
+    }
+
+    boolean hasAnyDataPoints() {
+        return theta1_vector.size() > 0;
     }
 
 }
