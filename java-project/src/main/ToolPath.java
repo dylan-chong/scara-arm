@@ -16,40 +16,27 @@ import ecs100.UI;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.List;
 
 
 public class ToolPath {
-    int n_steps; //straight line segmentt will be broken
+    private static final int n_steps = 50; //straight line segmentt will be broken
     // into that many sections
 
     // storage for angles and
     // moto control signals
-    ArrayList<Double> theta1_vector;
-    ArrayList<Double> theta2_vector;
-    ArrayList<Integer> pen_vector;
-    ArrayList<Integer> pwm1_vector;
-    ArrayList<Integer> pwm2_vector;
-    ArrayList<Integer> pwm3_vector;
+    private ArrayList<Double> theta1_vector = new ArrayList<Double>();
+    private ArrayList<Double> theta2_vector = new ArrayList<Double>();
+    private ArrayList<Integer> pen_vector = new ArrayList<Integer>();
 
     /**
      * Constructor for objects of class ToolPath
      */
     public ToolPath() {
-        // initialise instance variables
-        n_steps = 50;
-        theta1_vector = new ArrayList<Double>();
-        theta2_vector = new ArrayList<Double>();
-        pen_vector = new ArrayList<Integer>();
-        pwm1_vector = new ArrayList<Integer>();
-        pwm2_vector = new ArrayList<Integer>();
-        pwm3_vector = new ArrayList<Integer>();
-
     }
 
     /**********CONVERT (X,Y) PATH into angles******************/
-    public void convert_drawing_to_angles(Drawing drawing, Arm arm, String fname) {
-
-        // for all points of the drawing...        
+    public void convert_drawing_to_angles(Drawing drawing, Arm arm) {
         for (int i = 0; i < drawing.get_drawing_size() - 1; i++) {
             // take two points
             PointXY p0 = drawing.get_drawing_point(i);
@@ -71,6 +58,11 @@ public class ToolPath {
     }
 
     public void save_angles(String fname) {
+        assert theta1_vector.size() == theta2_vector.size() :
+                "Uneven amount of vectors for left and right arms";
+        assert theta1_vector.size() == pen_vector.size() :
+                "Wrong amount of pen vectors";
+
         for (int i = 0; i < theta1_vector.size(); i++) {
             UI.printf(" t1=%3.1f t2=%3.1f pen=%d\n",
                     theta1_vector.get(i), theta2_vector.get(i), pen_vector.get(i));
@@ -95,20 +87,54 @@ public class ToolPath {
 
     }
 
-    // takes sequence of angles and converts it 
-    // into sequence of motor signals
-    public void convert_angles_to_pwm(Arm arm) {
-        // for each angle
+    /**
+     * Saves PWM to string in a comma separated values format.
+     * Does not save the file
+     *
+     * Takes sequence of angles (I think the theta1_vector and similar vars) '
+     * and converts it into sequence of motor signals
+     *
+     * @param arm The arm used to convert PWMs
+     */
+    public String getPWMString(Arm arm) {
+        assert theta1_vector.size() == theta2_vector.size() :
+                "Uneven amount of vectors for left and right arms";
+        assert theta1_vector.size() == pen_vector.size() :
+                "Wrong amount of pen vectors";
+        assert hasAnyDataPoints();
+
+        List<Integer> pwm1_vector = new ArrayList<>();
+        List<Integer> pwm2_vector = new ArrayList<>();
+        List<Integer> pwm3_vector = new ArrayList<>();
+
+        // Convert vectors to PWM
         for (int i = 0; i < theta1_vector.size(); i++) {
             arm.set_angles(theta1_vector.get(i), theta2_vector.get(i));
             pwm1_vector.add(arm.get_pwm1());
             pwm2_vector.add(arm.get_pwm2());
+            pwm3_vector.add(pen_vector.get(i));
         }
+
+        // Convert to string
+        StringBuilder sb = new StringBuilder();
+
+        for (int i = 0; i < pwm1_vector.size(); i++) {
+            sb .append(pwm1_vector.get(i))
+                    .append(',')
+                    .append(pwm2_vector.get(i))
+                    .append(',')
+                    .append(pwm3_vector.get(i));
+
+            if (i < pwm1_vector.size() - 1) sb.append('\n');
+        }
+
+        String result = sb.toString();
+        assert result.split("\n").length == pwm1_vector.size();
+        return result;
     }
 
-    // save file with motor control values
-    public void save_pwm_file() {
-        // TODO ...
+    boolean hasAnyDataPoints() {
+        return theta1_vector.size() > 0;
     }
 
 }
