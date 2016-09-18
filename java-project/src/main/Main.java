@@ -40,6 +40,8 @@ public class Main {
         UI.addButton("Save path Ang", this::save_ang);
         UI.addButton("Load path Ang:Play", this::load_ang);
         UI.addButton("Send PWM pulses to Pi", this::sendPWMToPi);
+        UI.addButton("Enter test shape", this::addTestShape);
+        UI.addButton("Enter point", this::enterPoint);
 
         UI.setMouseMotionListener(this::doMouse);
         UI.setKeyListener(this::doKeys);
@@ -59,6 +61,34 @@ public class Main {
         Main obj = new Main();
     }
 
+    private void addTestShape() {
+        int LEFT = 270;
+        int RIGHT = 370;
+        int TOP = 270;
+        int BOTTOM = 370;
+        enter_path_xy();
+        // Rect
+        addPoint(LEFT, TOP);
+        addPoint(LEFT, BOTTOM);
+        addPoint(RIGHT, BOTTOM);
+        addPoint(RIGHT, TOP);
+        addPoint(LEFT, TOP);
+        // Cross
+        addPoint(RIGHT, BOTTOM);
+        addPoint(LEFT, BOTTOM);
+        addPoint(RIGHT, TOP);
+    }
+
+    private void enterPoint() {
+        addPoint(
+                UI.askInt("Enter x"), UI.askInt("Enter y")
+        );
+    }
+
+    private void addPoint(int x, int y) {
+        doMouse("moved", x, y);
+        doMouse("clicked", x, y);
+    }
 
     public void doKeys(String action) {
         UI.printf("Key :%s \n", action);
@@ -180,6 +210,7 @@ public class Main {
 
     /**
      * Note: creates temporary graphical arm glitch
+     *
      * @return A new ToolPath object with all the data from Drawing
      */
     private ToolPath createToolPath() {
