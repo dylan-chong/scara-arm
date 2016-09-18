@@ -20,10 +20,17 @@ import java.util.List;
 
 
 public class ToolPath {
-    //straight line segmentt will be broken into n_steps_per_pixel per unit
-    private static final double n_steps_per_pixel = 0.5;
+    /**
+     * Straight line segmentt will be broken into RESOLUTION per unit
+     */
+    private static final double RESOLUTION = 1.5;
     private static final int PEN_DOWN_PWM = 2000;
     private static final int PEN_UP_PWM = 1000;
+    /**
+     * Make sure the pen is up and at the right position for STARTING_IDLE_STEPS
+     * before starting to draw. Should be a multiple of 2.
+     */
+    private static final int STARTING_IDLE_STEPS = 20;
     // into that many sections
 
     // storage for angles and
@@ -46,9 +53,9 @@ public class ToolPath {
             PointXY p1 = drawing.get_drawing_point(i + 1);
             double distance = Math.hypot(p0.get_x() - p1.get_x(),
                     p0.get_y() - p1.get_y());
-            int steps = (int) (distance * n_steps_per_pixel);
+            int steps = (int) (distance * RESOLUTION);
             // break line between points into segments: `steps` of them
-            for (int j = 0; j < steps; j++) { // break segment into n_steps_per_pixel str. lines
+            for (int j = 0; j < steps; j++) { // break segment into RESOLUTION str. lines
                 double x = p0.get_x() + j * (p1.get_x() - p0.get_x()) / steps;
                 double y = p0.get_y() + j * (p1.get_y() - p0.get_y()) / steps;
                 arm.inverseKinematic(x, y);
@@ -107,7 +114,7 @@ public class ToolPath {
                 "Uneven amount of vectors for left and right arms";
         assert theta1_vector.size() == pen_vector.size() :
                 "Wrong amount of pen vectors";
-        assert hasAnyDataPoints();
+        assert hasEnoughDataPoints() : "Not enough points";
 
         List<Integer> pwm1_vector = new ArrayList<>();
         List<Integer> pwm2_vector = new ArrayList<>();
@@ -125,20 +132,30 @@ public class ToolPath {
         StringBuilder sb = new StringBuilder();
 
         // Add pen up at start to avoid drag
-        sb.append(pwm1_vector.get(0))
-                .append(',')
-                .append(pwm2_vector.get(0))
-                .append(',')
-                .append(PEN_UP_PWM)
-                .append('\n');
+        for (int i = 0; i < STARTING_IDLE_STEPS / 2; i++) {
+            sb.append(pwm1_vector.get(i))
+                    .append(',')
+                    .append(pwm2_vector.get(i))
+                    .append(',')
+                    .append(PEN_UP_PWM)
+                    .append('\n');
+        }
+        for (int i = STARTING_IDLE_STEPS / 2; i > 0; i--) {
+            sb.append(pwm1_vector.get(i))
+                    .append(',')
+                    .append(pwm2_vector.get(i))
+                    .append(',')
+                    .append(PEN_UP_PWM)
+                    .append('\n');
+        }
 
         for (int i = 0; i < pwm1_vector.size(); i++) {
             sb.append(pwm1_vector.get(i))
                     .append(',')
                     .append(pwm2_vector.get(i))
                     .append(',')
-                    .append(pwm3_vector.get(i));
-            sb.append('\n');
+                    .append(pwm3_vector.get(i))
+                    .append('\n');
         }
 
         // Add pen up
@@ -150,12 +167,13 @@ public class ToolPath {
                 .append(PEN_UP_PWM);
 
         String result = sb.toString();
-        assert result.split("\n").length == pwm1_vector.size() + 2;
+        assert result.split("\n").length == pwm1_vector.size()
+                + STARTING_IDLE_STEPS + 1;
         return result;
     }
 
-    boolean hasAnyDataPoints() {
-        return theta1_vector.size() > 0;
+    boolean hasEnoughDataPoints() {
+        return theta1_vector.size() > STARTING_IDLE_STEPS / 2;
     }
 
 }

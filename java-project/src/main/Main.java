@@ -7,7 +7,6 @@ package main;
  */
 
 // TODO DYLAN:
-// TODO pen up at end/start, n stsp
 // TODO fix auto send data
 // TODO find rect bounds
 
@@ -187,15 +186,15 @@ public class Main {
         ToolPath tp = new ToolPath();
         tp.convert_drawing_to_angles(drawing, arm);
 
-        if (tp.hasAnyDataPoints())
+        if (tp.hasEnoughDataPoints())
             UI.println("[TOOLPATH] Ignore graphical glitch please");
         return tp;
     }
 
     private void sendPWMToPi() {
         ToolPath tp = createToolPath();
-        if (!tp.hasAnyDataPoints()) {
-            UI.println("[PWM] No data points to send");
+        if (!tp.hasEnoughDataPoints()) {
+            UI.println("[PWM] Not enough data points to send");
             return;
         }
 
@@ -204,7 +203,7 @@ public class Main {
         try {
             PiController.getInstance().sendDataToPi(
                     tp.getPWMString(arm),
-                    () -> UI.println("[PWM] Probably successfully sending data")
+                    () -> UI.println("[PWM] Hopefully successfully sent data")
             );
         } catch (Exception e) {
             UI.println("[PWM] Error could not send data to Pi:\n" + e);
