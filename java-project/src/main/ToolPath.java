@@ -42,9 +42,7 @@ public class ToolPath {
     }
 
     /**********CONVERT (X,Y) PATH into angles******************/
-    public void convert_drawing_to_angles(Drawing drawing, Arm arm, String fname) {
-
-        // for all points of the drawing...        
+    public void convert_drawing_to_angles(Drawing drawing, Arm arm) {
         for (int i = 0; i < drawing.get_drawing_size() - 1; i++) {
             // take two points
             PointXY p0 = drawing.get_drawing_point(i);
@@ -66,6 +64,11 @@ public class ToolPath {
     }
 
     public void save_angles(String fname) {
+        assert theta1_vector.size() == theta2_vector.size() :
+                "Uneven amount of vectors for left and right arms";
+        assert theta1_vector.size() == pen_vector.size() :
+                "Wrong amount of pen vectors";
+
         for (int i = 0; i < theta1_vector.size(); i++) {
             UI.printf(" t1=%3.1f t2=%3.1f pen=%d\n",
                     theta1_vector.get(i), theta2_vector.get(i), pen_vector.get(i));
@@ -94,8 +97,8 @@ public class ToolPath {
      * Saves PWM to string in a comma separated values format.
      * Does not save the file
      *
-     * Takes sequence of angles and converts it
-     * into sequence of motor signals
+     * Takes sequence of angles (I think the theta1_vector and similar vars) '
+     * and converts it into sequence of motor signals
      *
      * @param arm The arm used to convert PWMs
      */

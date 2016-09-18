@@ -20,7 +20,7 @@ public class Main {
 
     private Arm arm;
     private Drawing drawing;
-    private ToolPath tool_path;
+
     // state of the GUI
     private int state; // 0 - nothing
     // 1 - inverse point kinematics - point
@@ -38,10 +38,11 @@ public class Main {
         UI.addButton("Load path Ang:Play", this::load_ang);
         UI.addButton("Send PWM pulses to Pi", this::sendPWMToPi);
 
-        // UI.addButton("Quit", UI::quit);
         UI.setMouseMotionListener(this::doMouse);
         UI.setKeyListener(this::doKeys);
 
+        UI.setWindowSize(1400, 800);
+        UI.setDivider(0.3);
 
         //ServerSocket serverSocket = new ServerSocket(22); 
 
@@ -130,6 +131,7 @@ public class Main {
     public void save_xy() {
         state = 0;
         String fname = UIFileChooser.save();
+        if (fname == null || fname.length() == 0) return;
         drawing.save_path(fname);
     }
 
@@ -145,6 +147,8 @@ public class Main {
     public void load_xy() {
         state = 0;
         String fname = UIFileChooser.open();
+        if (fname == null || fname.length() == 0) return;
+
         drawing.load_path(fname);
         drawing.draw();
 
@@ -153,12 +157,15 @@ public class Main {
 
     // save angles into the file
     public void save_ang() {
-        String fname = UIFileChooser.open();
-        tool_path.convert_drawing_to_angles(drawing, arm, fname);
+        String fname = UIFileChooser.save("angles.txt");
+        if (fname == null || fname.length() == 0) return;
+
+        ToolPath tp = createToolPath();
+        tp.save_angles(fname);
     }
 
     public void load_ang() {
-
+        UI.println("This does nothing at the moment");
     }
 
     public void run() {
@@ -168,15 +175,21 @@ public class Main {
         }
     }
 
+    /**
+     * @return A new ToolPath object with all the data from Drawing
+     */
+    private ToolPath createToolPath() {
+        ToolPath tp = new ToolPath();
+        tp.convert_drawing_to_angles(drawing, arm);
+        return tp;
+    }
+
     private void sendPWMToPi() {
         UI.println("Attempting to send data...");
 
-        UI.println("CONVERSION OF PWM TO STRING WILL FAIL");
-        // TODO NEXT work out what to do with tool_path
-
         try {
             PiController.getInstance().sendDataToPi(
-                    tool_path.getPWMString(arm),
+                    createToolPath().getPWMString(arm),
                     () -> UI.println("Done sending data")
             );
         } catch (Exception e) {

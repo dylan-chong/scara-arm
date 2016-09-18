@@ -16,6 +16,7 @@ class PiController {
     private static final String DEST_FILE = "~/Arm/pwm.csv";
 
     private static PiController instance;
+
     private boolean isRunning = false;
 
     private PiController() {
