@@ -6,6 +6,10 @@ package main;
  * ID:
  */
 
+// TODO DYLAN:
+// TODO pen up at end/start, n stsp
+// TODO fix auto send data
+// TODO find rect bounds
 
 import ecs100.UI;
 import ecs100.UIFileChooser;

@@ -20,7 +20,10 @@ import java.util.List;
 
 
 public class ToolPath {
-    private static final int n_steps = 50; //straight line segmentt will be broken
+    //straight line segmentt will be broken into n_steps_per_pixel per unit
+    private static final double n_steps_per_pixel = 0.5;
+    private static final int PEN_DOWN_PWM = 2000;
+    private static final int PEN_UP_PWM = 1000;
     // into that many sections
 
     // storage for angles and
@@ -41,17 +44,20 @@ public class ToolPath {
             // take two points
             PointXY p0 = drawing.get_drawing_point(i);
             PointXY p1 = drawing.get_drawing_point(i + 1);
-            // break line between points into segments: n_steps of them
-            for (int j = 0; j < n_steps; j++) { // break segment into n_steps str. lines
-                double x = p0.get_x() + j * (p1.get_x() - p0.get_x()) / n_steps;
-                double y = p0.get_y() + j * (p1.get_y() - p0.get_y()) / n_steps;
+            double distance = Math.hypot(p0.get_x() - p1.get_x(),
+                    p0.get_y() - p1.get_y());
+            int steps = (int) (distance * n_steps_per_pixel);
+            // break line between points into segments: `steps` of them
+            for (int j = 0; j < steps; j++) { // break segment into n_steps_per_pixel str. lines
+                double x = p0.get_x() + j * (p1.get_x() - p0.get_x()) / steps;
+                double y = p0.get_y() + j * (p1.get_y() - p0.get_y()) / steps;
                 arm.inverseKinematic(x, y);
                 theta1_vector.add(arm.get_theta1() * 180 / Math.PI);
                 theta2_vector.add(arm.get_theta2() * 180 / Math.PI);
                 if (p0.get_pen()) {
-                    pen_vector.add(1);
+                    pen_vector.add(PEN_DOWN_PWM);
                 } else {
-                    pen_vector.add(0);
+                    pen_vector.add(PEN_UP_PWM);
                 }
             }
         }
@@ -118,18 +124,33 @@ public class ToolPath {
         // Convert to string
         StringBuilder sb = new StringBuilder();
 
+        // Add pen up at start to avoid drag
+        sb.append(pwm1_vector.get(0))
+                .append(',')
+                .append(pwm2_vector.get(0))
+                .append(',')
+                .append(PEN_UP_PWM)
+                .append('\n');
+
         for (int i = 0; i < pwm1_vector.size(); i++) {
-            sb .append(pwm1_vector.get(i))
+            sb.append(pwm1_vector.get(i))
                     .append(',')
                     .append(pwm2_vector.get(i))
                     .append(',')
                     .append(pwm3_vector.get(i));
-
-            if (i < pwm1_vector.size() - 1) sb.append('\n');
+            sb.append('\n');
         }
 
+        // Add pen up
+        int last = pwm1_vector.size() - 1;
+        sb.append(pwm1_vector.get(last))
+                .append(',')
+                .append(pwm2_vector.get(last))
+                .append(',')
+                .append(PEN_UP_PWM);
+
         String result = sb.toString();
-        assert result.split("\n").length == pwm1_vector.size();
+        assert result.split("\n").length == pwm1_vector.size() + 2;
         return result;
     }
 
