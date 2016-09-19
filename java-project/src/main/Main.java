@@ -6,11 +6,9 @@ package main;
  * ID:
  */
 
-// TODO DYLAN:
-// TODO fix auto send data
-
 // TODO BRANDON:
 // TODO find rect bounds (maybe try draw grid and see wonkiness or something)
+// TODO fix drawing comes out horizontally flipped
 
 import ecs100.UI;
 import ecs100.UIFileChooser;
@@ -34,12 +32,11 @@ public class Main {
     private int state; // 0 - nothing
     // 1 - inverse point kinematics - point
     // 2 - enter path. Each click adds point
-    // 3 - enter path pause. Click does not add the point to the path
 
     /**
      * For reducing CPU load due to drawing
      */
-    private int drawEventCounter = 1;
+    private int drawEventCounter = 0;
     private boolean isDrawing = false;
 
     /**      */
@@ -93,9 +90,7 @@ public class Main {
 
     private void enterPoint() {
         enter_path_xy();
-        addPoint(
-                UI.askInt("Enter x"), UI.askInt("Enter y")
-        );
+        addPoint(UI.askInt("Enter x"), UI.askInt("Enter y"));
     }
 
     private void addPoint(int x, int y) {
@@ -106,12 +101,11 @@ public class Main {
     public void doKeys(String action) {
         UI.printf("Key :%s \n", action);
         if (action.equals("b")) {
-            // break - stop entering the lines
-            state = 3;
-            //
-
+            // Press b key after clicking at the point you want to
+            // toggle the pen at
+            if (drawing.togglePen()) UI.println("Pen is down");
+            else UI.println("Pen is up");
         }
-
     }
 
     public void doMouse(String action, double x, double y) {
@@ -128,7 +122,7 @@ public class Main {
             return;
         }
 
-        if (((state == 2) || (state == 3)) && action.equals("moved")) {
+        if (state == 2 && action.equals("moved")) {
             // draw arm and path
             arm.inverseKinematic(x, y);
 
@@ -147,21 +141,10 @@ public class Main {
         if ((state == 2) && (action.equals("clicked"))) {
             // add point(pen down) and draw
             UI.printf("Adding point x=%f y=%f\n", x, y);
-            drawing.add_point_to_path(x, y, true); // add point with pen down
+            drawing.add_point_to_path(x, y); // add point with pen down
 
             arm.inverseKinematic(x, y);
             drawing.print_path();
-        }
-
-
-        if ((state == 3) && (action.equals("clicked"))) {
-            // add point and draw
-            //UI.printf("Adding point x=%f y=%f\n",x,y);
-            drawing.add_point_to_path(x, y, false); // add point wit pen up
-
-            arm.inverseKinematic(x, y);
-            drawing.print_path();
-            state = 2;
         }
 
         draw();
@@ -239,9 +222,6 @@ public class Main {
     private ToolPath createToolPath() {
         ToolPath tp = new ToolPath();
         tp.convert_drawing_to_angles(drawing, arm);
-
-        if (tp.hasEnoughDataPoints())
-            UI.println("[TOOLPATH] Ignore graphical glitch please");
         return tp;
     }
 

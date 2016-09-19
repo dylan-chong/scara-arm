@@ -19,6 +19,7 @@ public class Drawing {
 
     // set of points
     private ArrayList<PointXY> path;
+    private boolean penIsDown = true;
 
     /**
      * Constructor for objects of class Drawing
@@ -27,11 +28,27 @@ public class Drawing {
         path = new ArrayList<PointXY>();
     }
 
-    public void add_point_to_path(double x, double y, boolean pen) {
+    void add_point_to_path(double x, double y) {
+        add_point_to_path(x, y, penIsDown);
+    }
+
+    private void add_point_to_path(double x, double y, boolean pen) {
         PointXY new_point = new PointXY(x, y, pen);
         path.add(new_point);
         UI.printf("Pioint added.x=%f y=%f pen=%b New path size - %d\n",
                 x, y, pen, path.size());
+    }
+
+    /**
+     * @return true if pen is down, false if up
+     */
+    boolean togglePen() {
+        penIsDown = !penIsDown;
+        if (path.size() > 0) {
+            PointXY lastPnt = path.get(path.size() - 1);
+            add_point_to_path(lastPnt.get_x(), lastPnt.get_y(), penIsDown);
+        }
+        return penIsDown;
     }
 
     public void print_path() {
