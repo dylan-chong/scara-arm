@@ -1,27 +1,22 @@
 package main;
 
 
-/**
- * ToolPath stores motor contol signals (pwm)
- * and motor angles
- * for given drawing and arm configuration.
- * Arm hardware takes sequence of pwm values
- * to drive the motors
- *
- * @Arthur Roberts
- * @1000000.0
- */
-
 import ecs100.UI;
 
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
-
+/**
+ * ToolPath stores motor control signals (pwm)
+ * and motor angles
+ * for given drawing and arm configuration.
+ * Arm hardware takes sequence of pwm values
+ * to drive the motors
+ */
 public class ToolPath {
     /**
-     * Straight line segmentt will be broken into RESOLUTION per unit
+     * Straight line segment will be broken into RESOLUTION per unit
      */
     private static final double RESOLUTION = 1.5;
     private static final int PEN_DOWN_PWM = 2000;

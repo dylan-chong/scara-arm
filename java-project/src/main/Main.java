@@ -8,18 +8,24 @@ package main;
 
 // TODO DYLAN:
 // TODO fix auto send data
-// TODO find rect bounds
+
+// TODO BRANDON:
+// TODO find rect bounds (maybe try draw grid and see wonkiness or something)
 
 import ecs100.UI;
 import ecs100.UIFileChooser;
 
 import java.awt.*;
 
-
 /**
  * <description of class Main>
  */
 public class Main {
+
+    /**
+     * Decides max frame rate (1000 / fps)
+     */
+    private static final int MIN_FRAME_INTERVAL = 1000 / 60;
 
     private Arm arm;
     private Drawing drawing;
@@ -29,6 +35,12 @@ public class Main {
     // 1 - inverse point kinematics - point
     // 2 - enter path. Each click adds point
     // 3 - enter path pause. Click does not add the point to the path
+
+    /**
+     * For reducing CPU load due to drawing
+     */
+    private int drawEventCounter = 1;
+    private boolean isDrawing = false;
 
     /**      */
     public Main() {
@@ -53,8 +65,7 @@ public class Main {
 
         this.arm = new Arm();
         this.drawing = new Drawing();
-        this.run();
-        arm.draw();
+        draw();
     }
 
     public static void main(String[] args) {
@@ -62,10 +73,11 @@ public class Main {
     }
 
     private void addTestShape() {
-        int LEFT = 270;
-        int RIGHT = 370;
-        int TOP = 270;
-        int BOTTOM = 370;
+        final int LEFT = 270;
+        final int RIGHT = 370;
+        final int TOP = 270;
+        final int BOTTOM = 370;
+
         enter_path_xy();
         // Rect
         addPoint(LEFT, TOP);
@@ -80,6 +92,7 @@ public class Main {
     }
 
     private void enterPoint() {
+        enter_path_xy();
         addPoint(
                 UI.askInt("Enter x"), UI.askInt("Enter y")
         );
@@ -112,14 +125,12 @@ public class Main {
             // draw as
 
             arm.inverseKinematic(x, y);
-            arm.draw();
             return;
         }
 
         if (((state == 2) || (state == 3)) && action.equals("moved")) {
             // draw arm and path
             arm.inverseKinematic(x, y);
-            arm.draw();
 
             // draw segment from last entered point to current mouse position
             if ((state == 2) && (drawing.get_path_size() > 0)) {
@@ -130,7 +141,6 @@ public class Main {
                 UI.drawLine(lp.get_x(), lp.get_y(), x, y);
                 // }
             }
-            drawing.draw();
         }
 
         // add point
@@ -140,8 +150,6 @@ public class Main {
             drawing.add_point_to_path(x, y, true); // add point with pen down
 
             arm.inverseKinematic(x, y);
-            arm.draw();
-            drawing.draw();
             drawing.print_path();
         }
 
@@ -152,13 +160,11 @@ public class Main {
             drawing.add_point_to_path(x, y, false); // add point wit pen up
 
             arm.inverseKinematic(x, y);
-            arm.draw();
-            drawing.draw();
             drawing.print_path();
             state = 2;
         }
 
-
+        draw();
     }
 
     public void save_xy() {
@@ -174,7 +180,7 @@ public class Main {
 
     public void inverse() {
         state = 1;
-        arm.draw();
+        draw();
     }
 
     public void load_xy() {
@@ -183,9 +189,8 @@ public class Main {
         if (fname == null || fname.length() == 0) return;
 
         drawing.load_path(fname);
-        drawing.draw();
 
-        arm.draw();
+        draw();
     }
 
     // save angles into the file
@@ -201,11 +206,29 @@ public class Main {
         UI.println("This does nothing at the moment");
     }
 
-    public void run() {
-        while (true) {
-            arm.draw();
-            UI.sleep(20);
+    void draw() {
+        if (isDrawing) {
+            drawEventCounter++;
+            return;
         }
+        isDrawing = true;
+        if (drawEventCounter == 0) drawEventCounter++;
+        new Thread(() -> {
+            while (drawEventCounter > 0) {
+                long preDrawTime = System.currentTimeMillis();
+
+                arm.draw();
+                drawing.draw();
+                drawEventCounter--;
+
+                long duration = System.currentTimeMillis() - preDrawTime;
+                if (duration > MIN_FRAME_INTERVAL) continue;
+
+                UI.sleep(MIN_FRAME_INTERVAL - duration);
+            }
+
+            isDrawing = false;
+        }).run();
     }
 
     /**

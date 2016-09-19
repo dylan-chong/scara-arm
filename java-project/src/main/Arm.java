@@ -1,17 +1,12 @@
 package main;
 
-
-/**
- * Class represents SCARA robotic arm.
- *
- * @Arthur Roberts
- * @0.0
- */
-
 import ecs100.UI;
 
 import java.awt.*;
 
+/**
+ * Class represents the set of SCARA robotic arms.
+ */
 public class Arm {
 
     // fixed arm parameters (coordinates of the motor
@@ -129,13 +124,13 @@ public class Arm {
 
         if (d < 2 * r) {
             valid_state = true;
-            
+
             // half distance between tool positions
             double hRPart = Math.pow(r, 2);
             double hAPart = Math.pow(getXjDiff() / 2, 2) + Math.pow(getYjDiff() / 2, 2);
             double h = Math.sqrt(hRPart - hAPart);
             double alpha = Math.atan(getYjDiff() / getXjDiff());
-            
+
             // tool position
             xt = xA + h * Math.cos(Math.PI / 2 - alpha);
             yt = yA + h * Math.sin(Math.PI / 2 - alpha);
@@ -149,9 +144,9 @@ public class Arm {
     public void inverseKinematic(double xt_new, double yt_new) {
         xt = xt_new;
         yt = yt_new;
-        
+
         valid_state = true;
-        
+
         // distance between pen and motor
         double d1 = getDistanceBetweenPenAndMotor(1);
         if (d1 > 2 * r) {
@@ -162,7 +157,7 @@ public class Arm {
 
         double l1 = d1 / 2;
         double h1 = Math.sqrt(Math.pow(r, 2) - Math.pow(l1, 2));
-        
+
         // elbows positions
         double xA1 = xt + 0.5 * (xm1 - xt);
         double yA1 = yt + 0.5 * (ym1 - yt);
@@ -188,7 +183,7 @@ public class Arm {
 
         double l2 = d2 / 2;
         double h2 = Math.sqrt(Math.pow(r, 2) - Math.pow(l2, 2));
-        
+
         // elbows positions
         double xA2 = xt + 0.5 * (xm2 - xt);
         double yA2 = yt + 0.5 * (ym2 - yt);
@@ -261,7 +256,6 @@ public class Arm {
     }
 
     /**
-     *
      * @param motorNum 1 or 2
      * @return
      */
