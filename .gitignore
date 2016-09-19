@@ -1,4 +1,5 @@
-/java-project/.idea/
+/java-project/.idea/workspace.xml
+/java-project/.idea/tasks.xml
 /java-project/out/
 *.swp
 /java-project/pwm.csv
