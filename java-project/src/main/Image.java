@@ -75,7 +75,7 @@ public class Image {
                 }
             }
         }
-        if (nearX != -1 && nearY != -1) {
+        if (dist != -1) {
             return new PointXY(nearX, nearY, true);
         }
         return null;
