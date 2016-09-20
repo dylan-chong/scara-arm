@@ -200,7 +200,7 @@ public class Arm {
         }
 
         UI.printf("xt:%3.1f, yt:%3.1f\n", xt, yt);
-        UI.printf("theta1:%3.1f, theta2:%3.1f\n", theta1 * 180 / Math.PI, theta2 * 180 / Math.PI);
+        UI.printf("pwm1:%d, pwm2:%d\n", get_pwm1(), get_pwm2());
         return;
     }
 
@@ -225,14 +225,14 @@ public class Arm {
     // linear intepolation
     public int get_pwm1() {
         int pwm = 0;
-        pwm = (int) (11.498464 * theta1 + 221.115182);
+        pwm = (int) (11.498464 * Math.toDegrees(theta1) + 221.115182);
         return pwm;
     }
 
     // ditto for motor 2
     public int get_pwm2() {
         int pwm = 0;
-        pwm = (int) (10.63547 * theta2 + 974.026574);
+        pwm = (int) (10.63547 * Math.toDegrees(theta2) + 974.026574);
         //pwm = (int)(pwm2_90 + (theta2 - 90)*pwm2_slope);
         return pwm;
     }

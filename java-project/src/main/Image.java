@@ -1,14 +1,15 @@
 package main;
 
+import java.awt.*;
 import java.util.*;
 import java.io.*;
 import ecs100.*;
 
 public class Image {
-    private static final double MIN_X = 167;
-    private static final double WIDTH = 460 - 167;
-    private static final double MIN_Y = 236;
-    private static final double HEIGHT = 338 - 236;
+    private static final double MIN_X = 300;
+    private static final double WIDTH = 50;
+    private static final double MIN_Y = 300;
+    private static final double HEIGHT = 50;
 
     private double sizeX;
     private double sizeY;
@@ -27,32 +28,53 @@ public class Image {
             int x = (int) point.get_x();
             int y = (int) point.get_y();
             angles.add(new Angle(x, y, false));
-            if (points[x][y - 1] && y >= 0) {
+            /*if (y > 0 && points[x][y - 1]) {
                 angles.add(new Angle(x, y, true));
                 angles.add(new Angle(x, y - 1, true));
                 angles.add(new Angle(x, y - 1, false));
                 angles.add(new Angle(x, y, false));
             }
-            if (points[x + 1][y - 1] && x + 1 < sizeX && y >= 0) {
+            if (x + 1 < sizeX && y > 0 && points[x + 1][y - 1]) {
                 angles.add(new Angle(x, y, true));
                 angles.add(new Angle(x + 1, y - 1, true));
                 angles.add(new Angle(x + 1, y - 1, false));
                 angles.add(new Angle(x, y, false));
             }
-            if (points[x + 1][y] && x + 1 < sizeX) {
+            if (x + 1 < sizeX && points[x + 1][y]) {
                 angles.add(new Angle(x, y, true));
                 angles.add(new Angle(x + 1, y, true));
                 angles.add(new Angle(x + 1, y, false));
                 angles.add(new Angle(x, y, false));
             }
-            if (points[x + 1][y + 1] && x + 1 < sizeX && y + 1 < sizeY) {
+            if (x + 1 < sizeX && y + 1 < sizeY && points[x + 1][y + 1]) {
                 angles.add(new Angle(x, y, true));
                 angles.add(new Angle(x + 1, y - 1, true));
                 angles.add(new Angle(x + 1, y - 1, false));
                 angles.add(new Angle(x, y, false));
+            }*/
+            /*angles.add(new Angle(x, y, true));
+            if (y > 0 && points[x][y - 1]) {
+                angles.add(new Angle(x, y - 1, true));
+                angles.add(new Angle(x, y, true));
             }
+            if (x + 1 < sizeX && y > 0 && points[x + 1][y - 1]) {
+                angles.add(new Angle(x + 1, y - 1, true));
+                angles.add(new Angle(x, y, true));
+            }
+            if (x + 1 < sizeX && points[x + 1][y]) {
+                angles.add(new Angle(x + 1, y, true));
+                angles.add(new Angle(x, y, true));
+            }
+            if (x + 1 < sizeX && y + 1 < sizeY && points[x + 1][y + 1]) {
+                angles.add(new Angle(x + 1, y - 1, true));
+                angles.add(new Angle(x, y, true));
+            }*/
+            angles.add(new Angle(x, y, false));
+            angles.add(new Angle(x, y, true));
+            angles.add(new Angle(x, y, false));
+            angles.add(new Angle(x, y, false));
         }
-        return null;
+        return angles;
     }
 
     private PointXY findNext(PointXY point, boolean[][] points, boolean[][] mask) {
@@ -65,13 +87,15 @@ public class Image {
         for (int i = 0; i < sizeX; i++) {
             for (int j = 0; j < sizeY; j++) {
                 if (points[i][j] && !mask[i][j]) {
-                    double newDist = Math.hypot(x - i, y - j);
-                    if (newDist < dist || dist == -1) {
+                    mask[i][j] = true;
+                    return new PointXY(i, j, true);
+                    //double newDist = Math.hypot(x - i, y - j);
+                    /*if (newDist < dist || dist == -1) {
                         nearX = i;
                         nearY = j;
                         dist = newDist;
                         mask[i][j] = true;
-                    }
+                    }*/
                 }
             }
         }
@@ -93,14 +117,17 @@ public class Image {
             for (int y = 0; y < sizeY; y++) {
                 for (int x = 0; x < sizeX; x++) {
                     try {
-                        int value = Integer.parseInt(getNextToken(scan));
+                        int value = Integer.parseInt(getNextValue(scan));
+
                         if (value == 1) {
+                            UI.setColor(x == sizeX-1? Color.black:Color.BLUE);
+                            UI.drawOval(x*3,y*3,3,3);
                             image[x][y] = true;
                         } else if (value != 0) {
                             throw new IllegalArgumentException();
                         }
                     } catch (NoSuchElementException | NumberFormatException e) {
-                        throw new IllegalArgumentException();
+                        //throw new IllegalArgumentException();
                     }
                 }
             }
@@ -139,6 +166,27 @@ public class Image {
         }
     }
 
+    private String getNextValue(BufferedInputStream scan) {
+        try {
+            while (true) {
+                int value = scan.read();
+                if (value == -1) {
+                    return "";
+                } else if ((char)value == '#') {
+                    do {
+                        value = scan.read();
+                    } while ((char)value != '\n');
+                    return String.valueOf((char)value);
+                } else {
+                    if ((char)value=='\n') continue;
+                    return String.valueOf((char)value);
+                }
+            }
+        } catch (IOException e) {
+            return "";
+        }
+    }
+
     public ArrayList<Angle> getAngles() {
         return angles;
     }
@@ -147,9 +195,9 @@ public class Image {
         try {
             PrintWriter writer = new PrintWriter(new FileWriter(UIFileChooser.save("Save PWM file")));
             for (Angle angle : angles) {
-                writer.printf("%d %d %d%n", angle.pwm1, angle.pwm2, angle.penDown ? 2000 : 1000);
+                writer.printf("%d,%d,%d%n", angle.pwm1, angle.pwm2, angle.penDown ? 2000 : 1000);
             }
-            writer.print("1500 1500 1000");
+            writer.print("1500,1500,1000");
             writer.close();
         } catch (IOException e) {
             e.printStackTrace();
@@ -181,5 +229,6 @@ public class Image {
     public static void main(String args[]) {
         Image img = new Image();
         img.savePwmFile();
+        UI.println("DONE");
     }
 }
