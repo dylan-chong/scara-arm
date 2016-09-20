@@ -1,6 +1,7 @@
 package main;
 
 import java.awt.*;
+import java.awt.geom.Point2D;
 import java.util.*;
 import java.io.*;
 import ecs100.*;
@@ -24,10 +25,14 @@ public class Image {
     private ArrayList<Angle> makeAngles(boolean[][] points) {
         ArrayList<Angle> angles = new ArrayList<>();
         boolean[][] mask = new boolean[(int) sizeX][(int) sizeY];
+        PointXY last = null;
         for (PointXY point = findNext(null, points, mask); point != null; point = findNext(point, points, mask)) {
             int x = (int) point.get_x();
             int y = (int) point.get_y();
-            angles.add(new Angle(x, y, false));
+            if (last != null && Point.distance(x,y,last.get_x(),last.get_y()) >= 2) {
+                for (int i =0; i < 4; i++)
+                angles.add(new Angle(last.get_x(), last.get_y(), false));
+            }
             /*if (y > 0 && points[x][y - 1]) {
                 angles.add(new Angle(x, y, true));
                 angles.add(new Angle(x, y - 1, true));
@@ -52,27 +57,31 @@ public class Image {
                 angles.add(new Angle(x + 1, y - 1, false));
                 angles.add(new Angle(x, y, false));
             }*/
-            /*angles.add(new Angle(x, y, true));
+            //angles.add(new Angle(x, y, true));
             if (y > 0 && points[x][y - 1]) {
                 angles.add(new Angle(x, y - 1, true));
                 angles.add(new Angle(x, y, true));
+                UI.drawLine(x*3,y*3,x*3,(y-1)*3);
             }
             if (x + 1 < sizeX && y > 0 && points[x + 1][y - 1]) {
                 angles.add(new Angle(x + 1, y - 1, true));
                 angles.add(new Angle(x, y, true));
+                UI.drawLine(x*3,y*3,(x+1)*3,(y-1)*3);
             }
             if (x + 1 < sizeX && points[x + 1][y]) {
                 angles.add(new Angle(x + 1, y, true));
                 angles.add(new Angle(x, y, true));
+                UI.drawLine(x*3,y*3,(x+1)*3,y*3);
             }
             if (x + 1 < sizeX && y + 1 < sizeY && points[x + 1][y + 1]) {
-                angles.add(new Angle(x + 1, y - 1, true));
+                angles.add(new Angle(x + 1, y + 1, true));
                 angles.add(new Angle(x, y, true));
-            }*/
-            angles.add(new Angle(x, y, false));
-            angles.add(new Angle(x, y, true));
-            angles.add(new Angle(x, y, false));
-            angles.add(new Angle(x, y, false));
+                UI.drawLine(x*3,y*3,(x+1)*3,(y+1)*3);
+            }
+            last = point;
+            //angles.add(new Angle(x, y, true));
+            //angles.add(new Angle(x, y, false));
+            //angles.add(new Angle(x, y, false));
         }
         return angles;
     }
@@ -87,19 +96,17 @@ public class Image {
         for (int i = 0; i < sizeX; i++) {
             for (int j = 0; j < sizeY; j++) {
                 if (points[i][j] && !mask[i][j]) {
-                    mask[i][j] = true;
-                    return new PointXY(i, j, true);
-                    //double newDist = Math.hypot(x - i, y - j);
-                    /*if (newDist < dist || dist == -1) {
+                    double newDist = Point2D.distance(x,y,i,j);
+                    if (newDist < dist || dist == -1) {
                         nearX = i;
                         nearY = j;
                         dist = newDist;
-                        mask[i][j] = true;
-                    }*/
+                    }
                 }
             }
         }
         if (dist != -1) {
+            mask[nearX][nearY] = true;
             return new PointXY(nearX, nearY, true);
         }
         return null;
@@ -121,7 +128,6 @@ public class Image {
 
                         if (value == 1) {
                             UI.setColor(x == sizeX-1? Color.black:Color.BLUE);
-                            UI.drawOval(x*3,y*3,3,3);
                             image[x][y] = true;
                         } else if (value != 0) {
                             throw new IllegalArgumentException();
