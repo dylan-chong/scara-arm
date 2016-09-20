@@ -5,10 +5,10 @@ import java.io.*;
 import ecs100.*;
 
 public class Image {
-    private static final double MIN_X = 0;
-    private static final double WIDTH = 100;
-    private static final double MIN_Y = 0;
-    private static final double HEIGHT = 100;
+    private static final double MIN_X = 167;
+    private static final double WIDTH = 460 - 167;
+    private static final double MIN_Y = 236;
+    private static final double HEIGHT = 338 - 236;
 
     private double sizeX;
     private double sizeY;
@@ -143,11 +143,24 @@ public class Image {
         return angles;
     }
 
+    public void savePwmFile() {
+        try {
+            PrintWriter writer = new PrintWriter(new FileWriter(UIFileChooser.save("Save PWM file")));
+            for (Angle angle : angles) {
+                writer.printf("%d %d %d%n", angle.pwm1, angle.pwm2, angle.penDown ? 2000 : 1000);
+            }
+            writer.print("1500 1500 1000");
+            writer.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     private class Angle {
         double theta1;
         double theta2;
-        double pwm1;
-        double pwm2;
+        int pwm1;
+        int pwm2;
         boolean penDown;
 
         public Angle(double x, double y, boolean p) {
@@ -163,5 +176,10 @@ public class Image {
             pwm2 = arm.get_pwm2();
             penDown = p;
         }
+    }
+
+    public static void main(String args[]) {
+        Image img = new Image();
+        img.savePwmFile();
     }
 }
