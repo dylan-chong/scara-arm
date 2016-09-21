@@ -23,7 +23,7 @@ public class Main {
     /**
      * Decides max frame rate (1000 / fps)
      */
-    private static final int MIN_FRAME_INTERVAL = 1000 / 60;
+    private static final int MIN_FRAME_INTERVAL = 0;
 
     private Arm arm;
     private Drawing drawing;
