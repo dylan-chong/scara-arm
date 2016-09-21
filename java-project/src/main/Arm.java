@@ -14,10 +14,10 @@ public class Arm {
      *
      * Temporary bounds (not expanded to maximium bounds)
      */
-    static final double MIN_X = 300;
-    static final double WIDTH = 50;
-    static final double MIN_Y = 300;
-    static final double HEIGHT = 50;
+    static final double MIN_X = 270;
+    static final double WIDTH = 150;
+    static final double MIN_Y = 260;
+    static final double HEIGHT = 120;
 
     // fixed arm parameters (coordinates of the motor
     // (measured in pixels of the picture))
@@ -67,12 +67,14 @@ public class Arm {
         valid_state = false;
     }
 
-    // draws arm on the canvas
-    public void draw() {
+    /**
+     *
+     * @return true if valid_state
+     */
+    public boolean draw() {
         // draw arm
         int height = UI.getCanvasHeight();
         int width = UI.getCanvasWidth();
-        // calculate joint positions
         xj1 = xm1 + r * Math.cos(theta1);
         yj1 = ym1 + r * Math.sin(theta1);
         xj2 = xm2 + r * Math.cos(theta2);
@@ -104,23 +106,31 @@ public class Arm {
 
         // it can b euncommented later when
         // kinematic equations are derived
-        if (valid_state) {
-            // draw upper arms
-            UI.setColor(Color.GREEN);
-            UI.drawLine(xm1, ym1, xj1, yj1);
-            UI.drawLine(xm2, ym2, xj2, yj2);
-            //draw forearms
-            UI.drawLine(xj1, yj1, xt, yt);
-            UI.drawLine(xj2, yj2, xt, yt);
-            // draw tool
-            double rt = 20;
-            UI.drawOval(xt - rt / 2, yt - rt / 2, rt, rt);
-        }
+        // draw upper arms
+        UI.setColor(valid_state ? Color.GREEN :  Color.RED);
+        UI.drawLine(xm1, ym1, xj1, yj1);
+        UI.drawLine(xm2, ym2, xj2, yj2);
+        //draw forearms
+        UI.drawLine(xj1, yj1, xt, yt);
+        UI.drawLine(xj2, yj2, xt, yt);
+        // draw tool
+        double rt = 20;
+        UI.drawOval(xt - rt / 2, yt - rt / 2, rt, rt);
 
+        // Draw bounds
+        UI.setColor(Color.GREEN);
+        UI.setLineWidth(1);
+        UI.drawRect(MIN_X, MIN_Y, WIDTH, HEIGHT);
+
+        return valid_state;
     }
 
-    // calculate tool position from motor angles
-    // updates variable in the class
+    /**
+     * Calculate tool position from motor angles
+     * updates variable in the class
+     *
+     * Not used, but required by questions
+     */
     public void directKinematic() {
 
         // midpoint between joints
@@ -152,6 +162,12 @@ public class Arm {
     // motor angles from tool position
     // updetes variables of the class
     public void inverseKinematic(double xt_new, double yt_new) {
+        if (xt_new < MIN_X || yt_new < MIN_Y || xt_new > MIN_X + WIDTH
+                || yt_new > MIN_Y + HEIGHT) {
+            valid_state = false;
+            return;
+        }
+
         xt = xt_new;
         yt = yt_new;
 

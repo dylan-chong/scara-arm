@@ -114,7 +114,7 @@ public class Main {
         UI.clearGraphics();
         String out_str = String.format("%3.1f %3.1f", x, y);
         UI.drawString(out_str, x + 10, y + 10);
-        //
+
         if ((state == 1) && (action.equals("clicked"))) {
             // draw as
 
@@ -200,7 +200,7 @@ public class Main {
             while (drawEventCounter > 0) {
                 long preDrawTime = System.currentTimeMillis();
 
-                arm.draw();
+                if (!arm.draw()) UI.println("Invalid arm position (cannot draw)");
                 drawing.draw();
                 drawEventCounter--;
 
