@@ -66,7 +66,7 @@ class PiController {
             }
 
             System.out.println("NO MORE TERMINAL OUTPUT (total of " + lines +
-                    "lines");
+                    " lines)");
 
             isRunning = false;
             doneCallback.run();

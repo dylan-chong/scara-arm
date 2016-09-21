@@ -28,6 +28,13 @@ public class Arm {
     private static final int xm2 = 374;
     private static final int ym2 = 108;
     private static final double r = 156.0;  // length of the upper/fore arm
+
+    // Limiting Bounds for user entry
+    private static final double MIN_R = r;
+    private static final double MAX_R = r * 1.7;
+    private static final double MIN_ANG = 50; // degrees
+    private static final double ANG_LENGTH = 180 - MIN_ANG * 2; // degrees
+
     // parameters of servo motors - linear function pwm(angle)
     // each of two motors has unique function which should be measured
     // linear function cam be described by two points
@@ -122,9 +129,19 @@ public class Arm {
         UI.drawOval(xt - rt / 2, yt - rt / 2, rt, rt);
 
         // Draw bounds
-        UI.setColor(Color.GREEN);
-        UI.setLineWidth(1);
-        UI.drawRect(MIN_X, MIN_Y, WIDTH, HEIGHT);
+        {
+            UI.setColor(Color.GREEN);
+            UI.setLineWidth(1);
+            // UI.drawRect(MIN_X, MIN_Y, WIDTH, HEIGHT);
+
+            double motorMidX = (xm1 + xm2) / 2;
+            double motorMidY = (ym1 + ym2) / 2;
+
+            UI.drawArc(motorMidX - MIN_R, motorMidY - MIN_R, MIN_R * 2, MIN_R * 2,
+                    180 + MIN_ANG, ANG_LENGTH);
+            UI.drawArc(motorMidX - MAX_R, motorMidY - MAX_R, MAX_R * 2, MAX_R * 2,
+                    180 + MIN_ANG, ANG_LENGTH);
+        }
 
         return valid_state;
     }
@@ -171,11 +188,21 @@ public class Arm {
      * @return true iff valid_state === true
      */
     boolean inverseKinematic(double xt_new, double yt_new) {
-        if (xt_new < MIN_X || yt_new < MIN_Y || xt_new > MIN_X + WIDTH
-                || yt_new > MIN_Y + HEIGHT) {
-            valid_state = false;
-            return false;
+        {
+            double effectiveRad = getEffectiveRadiusToPosition(xt_new, yt_new);
+            double angle = getAngle(xt_new, yt_new);
+            if (effectiveRad < MIN_R || effectiveRad > MAX_R ||
+                    angle < MIN_ANG || angle > MIN_ANG + ANG_LENGTH) {
+                    valid_state = false;
+                    return false;
+            }
         }
+
+        // if (xt_new < MIN_X || yt_new < MIN_Y || xt_new > MIN_X + WIDTH
+        //         || yt_new > MIN_Y + HEIGHT) {
+        //     valid_state = false;
+        //     return false;
+        // }
 
         xt = xt_new;
         yt = yt_new;
@@ -310,5 +337,30 @@ public class Arm {
                 throw new IllegalArgumentException("motorNum must be 1 or 2");
         }
         return Math.sqrt(xPart + yPart);
+    }
+
+    private double getEffectiveRadiusToPosition(double x, double y) {
+        // Point between motors
+        double motorMidX = (xm1 + xm2) / 2;
+        double motorMidY = (ym1 + ym2) / 2;
+
+        return Math.hypot(x - motorMidX,
+                y - motorMidY);
+    }
+
+    /**
+     *
+     * @param x position to compare with midpoint between motors
+     * @param y position to compare with midpoint between motors
+     * @return In degrees
+     */
+    private double getAngle(double x, double y) {
+        double motorMidX = (xm1 + xm2) / 2;
+        double motorMidY = (ym1 + ym2) / 2;
+
+        double a = Math.atan2(x - motorMidX, y - motorMidY);
+        a = Math.toDegrees(a);
+        a = -a + 90; // Make sure angle is in the right direction
+        return a;
     }
 }
