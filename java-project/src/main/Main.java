@@ -127,9 +127,8 @@ public class Main {
             arm.inverseKinematic(x, y);
 
             // draw segment from last entered point to current mouse position
-            if ((state == 2) && (drawing.get_path_size() > 0)) {
-                PointXY lp = new PointXY();
-                lp = drawing.get_path_last_point();
+            if (drawing.get_path_size() > 0) {
+                PointXY lp = drawing.get_path_last_point();
                 //if (lp.get_pen()){
                 UI.setColor(Color.GRAY);
                 UI.drawLine(lp.get_x(), lp.get_y(), x, y);
@@ -140,11 +139,13 @@ public class Main {
         // add point
         if ((state == 2) && (action.equals("clicked"))) {
             // add point(pen down) and draw
-            UI.printf("Adding point x=%f y=%f\n", x, y);
-            drawing.add_point_to_path(x, y); // add point with pen down
+            if (arm.isValid_state()) {
+                UI.printf("Adding point x=%f y=%f\n", x, y);
+                drawing.add_point_to_path(x, y); // add point with pen down
 
-            arm.inverseKinematic(x, y);
-            drawing.print_path();
+                arm.inverseKinematic(x, y);
+                drawing.print_path();
+            }
         }
 
         draw();

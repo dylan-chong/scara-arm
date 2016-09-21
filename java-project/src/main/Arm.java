@@ -11,7 +11,7 @@ public class Arm {
 
     /**
      * The limit of the drawing range
-     *
+     * <p>
      * Temporary bounds (not expanded to maximium bounds)
      */
     static final double MIN_X = 270;
@@ -67,8 +67,11 @@ public class Arm {
         valid_state = false;
     }
 
+    public boolean isValid_state() {
+        return valid_state;
+    }
+
     /**
-     *
      * @return true if valid_state
      */
     public boolean draw() {
@@ -107,7 +110,7 @@ public class Arm {
         // it can b euncommented later when
         // kinematic equations are derived
         // draw upper arms
-        UI.setColor(valid_state ? Color.GREEN :  Color.RED);
+        UI.setColor(valid_state ? Color.GREEN : Color.RED);
         UI.drawLine(xm1, ym1, xj1, yj1);
         UI.drawLine(xm2, ym2, xj2, yj2);
         //draw forearms
@@ -128,7 +131,7 @@ public class Arm {
     /**
      * Calculate tool position from motor angles
      * updates variable in the class
-     *
+     * <p>
      * Not used, but required by questions
      */
     public void directKinematic() {
@@ -159,13 +162,18 @@ public class Arm {
         }
     }
 
-    // motor angles from tool position
-    // updetes variables of the class
-    public void inverseKinematic(double xt_new, double yt_new) {
+    /**
+     * Motor angles from tool position updetes variables of the class
+     *
+     * @param xt_new
+     * @param yt_new
+     * @return true iff valid_state === true
+     */
+    public boolean inverseKinematic(double xt_new, double yt_new) {
         if (xt_new < MIN_X || yt_new < MIN_Y || xt_new > MIN_X + WIDTH
                 || yt_new > MIN_Y + HEIGHT) {
             valid_state = false;
-            return;
+            return false;
         }
 
         xt = xt_new;
@@ -178,7 +186,7 @@ public class Arm {
         if (d1 > 2 * r) {
             UI.println("Arm 1 - can not reach");
             valid_state = false;
-            return;
+            return false;
         }
 
         double l1 = d1 / 2;
@@ -196,7 +204,7 @@ public class Arm {
         if ((theta1 < -Math.PI) || (theta1 > Math.PI)) {
             UI.println("Angle 1 - invalid");
             valid_state = false;
-            return;
+            return false;
         }
 
         // distance between pen and motor
@@ -204,7 +212,7 @@ public class Arm {
         if (d2 > 2 * r) {
             UI.println("Arm 2 - can not reach");
             valid_state = false;
-            return;
+            return false;
         }
 
         double l2 = d2 / 2;
@@ -222,12 +230,12 @@ public class Arm {
         if ((theta2 < -Math.PI) || (theta2 > Math.PI)) {
             UI.println("Angle 2 - invalid");
             valid_state = false;
-            return;
+            return false;
         }
 
         UI.printf("xt:%3.1f, yt:%3.1f\n", xt, yt);
         UI.printf("pwm1:%d, pwm2:%d\n", get_pwm1(), get_pwm2());
-        return;
+        return true;
     }
 
     // returns angle of motor 1
