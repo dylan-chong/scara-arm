@@ -1,16 +1,19 @@
 package main;
 
+import ecs100.UI;
+import ecs100.UIFileChooser;
+
 import java.awt.*;
 import java.awt.geom.Point2D;
-import java.util.*;
 import java.io.*;
-import ecs100.*;
+import java.util.ArrayList;
+import java.util.NoSuchElementException;
 
 public class Image {
-    private static final double MIN_X = 300;
-    private static final double WIDTH = 50;
-    private static final double MIN_Y = 300;
-    private static final double HEIGHT = 50;
+    private static final double MIN_X = Arm.MIN_X;
+    private static final double WIDTH = Arm.WIDTH;
+    private static final double MIN_Y = Arm.MIN_Y;
+    private static final double HEIGHT = Arm.HEIGHT;
 
     private double sizeX;
     private double sizeY;

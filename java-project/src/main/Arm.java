@@ -9,6 +9,16 @@ import java.awt.*;
  */
 public class Arm {
 
+    /**
+     * The limit of the drawing range
+     *
+     * Temporary bounds (not expanded to maximium bounds)
+     */
+    static final double MIN_X = 300;
+    static final double WIDTH = 50;
+    static final double MIN_Y = 300;
+    static final double HEIGHT = 50;
+
     // fixed arm parameters (coordinates of the motor
     // (measured in pixels of the picture))
     // left motor
@@ -22,18 +32,18 @@ public class Arm {
     // each of two motors has unique function which should be measured
     // linear function cam be described by two points
     // motor 1, point1 
-    private double pwm1_val_1;
-    private double theta1_val_1;
-    // motor 1, point 2
-    private double pwm1_val_2;
-    private double theta1_val_2;
-
-    // motor 2, point 1
-    private double pwm2_val_1;
-    private double theta2_val_1;
-    // motor 2, point 2
-    private double pwm2_val_2;
-    private double theta2_val_2;
+    // private double pwm1_val_1;
+    // private double theta1_val_1;
+    // // motor 1, point 2
+    // private double pwm1_val_2;
+    // private double theta1_val_2;
+    //
+    // // motor 2, point 1
+    // private double pwm2_val_1;
+    // private double theta2_val_1;
+    // // motor 2, point 2
+    // private double pwm2_val_2;
+    // private double theta2_val_2;
 
 
     // current state of the arm
