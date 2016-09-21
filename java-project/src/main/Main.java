@@ -70,10 +70,10 @@ public class Main {
     }
 
     private void addTestShape() {
-        final int LEFT = 270;
-        final int RIGHT = 370;
-        final int TOP = 270;
-        final int BOTTOM = 370;
+        final int LEFT = (int) Arm.MIN_X + 1;
+        final int RIGHT = (int) (Arm.MIN_X + Arm.WIDTH) - 2;
+        final int TOP = (int) Arm.MIN_Y + 1;
+        final int BOTTOM = (int) (Arm.MIN_Y + Arm.HEIGHT) - 2;
 
         enter_path_xy();
         // Rect
@@ -199,6 +199,11 @@ public class Main {
         if (drawEventCounter == 0) drawEventCounter++;
         new Thread(() -> {
             while (drawEventCounter > 0) {
+                if (arm == null) {
+                    UI.sleep(50);
+                    continue;
+                }
+
                 long preDrawTime = System.currentTimeMillis();
 
                 if (!arm.draw()) UI.println("Invalid arm position (cannot draw)");
