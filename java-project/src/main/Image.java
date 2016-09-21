@@ -15,6 +15,8 @@ public class Image {
     private static final double MIN_Y = 260;
     private static final double HEIGHT = 120;
 
+    private static final int BUFFER = 10;
+
     private double sizeX;
     private double sizeY;
 
@@ -25,31 +27,33 @@ public class Image {
         angles = makeAngles(getPoints(file));
     }
 
-    /*private ArrayList<ArrayList<Angle>> makePaths(boolean[][] points) {
-        ArrayList<ArrayList<Angle>> paths = new ArrayList<>();
+    private ArrayList<Angle> makeAngles(boolean[][] points) {
+        ArrayList<Angle> path = new ArrayList<>();
         boolean[][][] mask = makeMask(points);
+        PointXY prevPoint = null;
 
         for (PointXY point = findNext(null, points, mask); point != null; point = findNext(point, points, mask)) {
-            ArrayList<Angle> path = new ArrayList<>();
-            for (int i =0; i < 4; i++)
+            for (int i =0; i < BUFFER; i++)
                 path.add(new Angle(point.get_x(), point.get_y(), false));
             path.add(new Angle(point.get_x(), point.get_y(), true));
             while (true) {
-                PointXY deltaPoint = moveNext(point, points, mask);
+                PointXY deltaPoint = moveNext(point, mask);
                 if (deltaPoint == null) {
                     break;
                 }
                 double x = point.get_x() + deltaPoint.get_x();
                 double y = point.get_y() + deltaPoint.get_y();
+                prevPoint = point;
                 point = new PointXY(x, y, true);
+                UI.drawLine(prevPoint.get_x(), prevPoint.get_y(), point.get_x(), point.get_y());
                 path.add(new Angle(point.get_x(), point.get_y(), true));
+
             }
-            for (int i =0; i < 4; i++)
+            for (int i =0; i < BUFFER; i++)
                 path.add(new Angle(point.get_x(), point.get_y(), false));
-            paths.add(path);
         }
-        return paths;
-    }*/
+        return path;
+    }
 
     private boolean[][][] makeMask(boolean[][] points) {
         boolean[][][] mask = new boolean[(int) sizeX][(int) sizeY][4];
@@ -94,7 +98,7 @@ public class Image {
         return null;
     }
 
-    private ArrayList<Angle> makeAngles(boolean[][] points) {
+    /*private ArrayList<Angle> makeAngles(boolean[][] points) {
         ArrayList<Angle> angles = new ArrayList<>();
         boolean[][] mask = new boolean[(int) sizeX][(int) sizeY];
         PointXY last = null;
@@ -105,31 +109,6 @@ public class Image {
                 for (int i =0; i < 4; i++)
                 angles.add(new Angle(last.get_x(), last.get_y(), false));
             }
-            /*if (y > 0 && points[x][y - 1]) {
-                angles.add(new Angle(x, y, true));
-                angles.add(new Angle(x, y - 1, true));
-                angles.add(new Angle(x, y - 1, false));
-                angles.add(new Angle(x, y, false));
-            }
-            if (x + 1 < sizeX && y > 0 && points[x + 1][y - 1]) {
-                angles.add(new Angle(x, y, true));
-                angles.add(new Angle(x + 1, y - 1, true));
-                angles.add(new Angle(x + 1, y - 1, false));
-                angles.add(new Angle(x, y, false));
-            }
-            if (x + 1 < sizeX && points[x + 1][y]) {
-                angles.add(new Angle(x, y, true));
-                angles.add(new Angle(x + 1, y, true));
-                angles.add(new Angle(x + 1, y, false));
-                angles.add(new Angle(x, y, false));
-            }
-            if (x + 1 < sizeX && y + 1 < sizeY && points[x + 1][y + 1]) {
-                angles.add(new Angle(x, y, true));
-                angles.add(new Angle(x + 1, y - 1, true));
-                angles.add(new Angle(x + 1, y - 1, false));
-                angles.add(new Angle(x, y, false));
-            }*/
-            //angles.add(new Angle(x, y, true));
             if (y > 0 && points[x][y - 1]) {
                 angles.add(new Angle(x, y - 1, true));
                 angles.add(new Angle(x, y, true));
@@ -151,14 +130,11 @@ public class Image {
                 UI.drawLine(x*3,y*3,(x+1)*3,(y+1)*3);
             }
             last = point;
-            //angles.add(new Angle(x, y, true));
-            //angles.add(new Angle(x, y, false));
-            //angles.add(new Angle(x, y, false));
         }
         return angles;
-    }
+    }*/
 
-    private PointXY findNext(PointXY point, boolean[][] points, boolean[][] mask) {
+    /*private PointXY findNext(PointXY point, boolean[][] points, boolean[][] mask) {
         int x = point != null ? (int) point.get_x() : 0;
         int y = point != null ? (int) point.get_y() : 0;
         int nearX = -1;
@@ -168,7 +144,7 @@ public class Image {
         for (int i = 0; i < sizeX; i++) {
             for (int j = 0; j < sizeY; j++) {
                 if (points[i][j] && !mask[i][j]) {
-                    double newDist = Point2D.distance(x,y,i,j);
+                    double newDist = Point2D.distance(x, y, i, j);
                     if (newDist < dist || dist == -1) {
                         nearX = i;
                         nearY = j;
@@ -179,6 +155,40 @@ public class Image {
         }
         if (dist != -1) {
             mask[nearX][nearY] = true;
+            return new PointXY(nearX, nearY, true);
+        }
+        return null;
+    }*/
+
+    private PointXY findNext(PointXY point, boolean[][] points, boolean[][][] mask) {
+        int x = point != null ? (int) point.get_x() : 0;
+        int y = point != null ? (int) point.get_y() : 0;
+        int nearX = -1;
+        int nearY = -1;
+        double dist = -1;
+
+        for (int i = 0; i < sizeX; i++) {
+            for (int j = 0; j < sizeY; j++) {
+                if (points[i][j]) {
+                    boolean alreadyDrawn = true;
+                    for (boolean m : mask[i][j]) {
+                        if (m) {
+                            alreadyDrawn = false;
+                        }
+                    }
+                    if (alreadyDrawn) {
+                        continue;
+                    }
+                    double newDist = Point2D.distance(x, y, i, j);
+                    if (newDist < dist || dist == -1) {
+                        nearX = i;
+                        nearY = j;
+                        dist = newDist;
+                    }
+                }
+            }
+        }
+        if (dist != -1) {
             return new PointXY(nearX, nearY, true);
         }
         return null;
