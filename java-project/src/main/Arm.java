@@ -29,7 +29,7 @@ public class Arm {
     private static final int ym2 = 108;
     private static final double r = 156.0;  // length of the upper/fore arm
 
-    // Limiting Bounds for user entry
+    // Limiting Bounds for user entry (donut shape)
     private static final double MIN_R = r;
     private static final double MAX_R = r * 1.7;
     private static final double MIN_ANG = 50; // degrees

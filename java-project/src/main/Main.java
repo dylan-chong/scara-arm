@@ -1,6 +1,6 @@
 package main;
 
-/* Code for Assignment ?? 
+/* Code for Assignment ??
  * Name:
  * Usercode:
  * ID:
@@ -58,7 +58,7 @@ public class Main {
         UI.setWindowSize(1400, 800);
         UI.setDivider(0.3);
 
-        //ServerSocket serverSocket = new ServerSocket(22); 
+        //ServerSocket serverSocket = new ServerSocket(22);
 
         this.arm = new Arm();
         this.drawing = new Drawing();
@@ -70,10 +70,10 @@ public class Main {
     }
 
     private void addTestShape() {
-        final int LEFT = (int) Arm.MIN_X + 1;
-        final int RIGHT = (int) (Arm.MIN_X + Arm.WIDTH) - 2;
-        final int TOP = (int) Arm.MIN_Y + 1;
-        final int BOTTOM = (int) (Arm.MIN_Y + Arm.HEIGHT) - 2;
+        final int LEFT = 250;
+        final int RIGHT = 414;
+        final int TOP = 274;
+        final int BOTTOM = 349;
 
         enter_path_xy();
         // Rect
