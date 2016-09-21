@@ -98,7 +98,7 @@ public class Main {
         doMouse("clicked", x, y);
     }
 
-    public void doKeys(String action) {
+    void doKeys(String action) {
         UI.printf("Key :%s \n", action);
         if (action.equals("b")) {
             // Press b key after clicking at the point you want to
@@ -108,7 +108,7 @@ public class Main {
         }
     }
 
-    public void doMouse(String action, double x, double y) {
+    void doMouse(String action, double x, double y) {
         //UI.printf("Mouse Click:%s, state:%d  x:%3.1f  y:%3.1f\n",
         //   action,state,x,y);
         UI.clearGraphics();
@@ -190,7 +190,7 @@ public class Main {
         UI.println("This does nothing at the moment");
     }
 
-    void draw() {
+    private void draw() {
         if (isDrawing) {
             drawEventCounter++;
             return;

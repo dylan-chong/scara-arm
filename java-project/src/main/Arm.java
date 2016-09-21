@@ -61,20 +61,21 @@ public class Arm {
     /**
      * Constructor for objects of class Arm
      */
-    public Arm() {
+    Arm() {
         theta1 = -90.0 * Math.PI / 180.0; // initial angles of the upper arms
         theta2 = -90.0 * Math.PI / 180.0;
-        valid_state = false;
+
+        inverseKinematic(MIN_X + (WIDTH / 2), MIN_Y + (HEIGHT / 2));
     }
 
-    public boolean isValid_state() {
+    boolean isValid_state() {
         return valid_state;
     }
 
     /**
      * @return true if valid_state
      */
-    public boolean draw() {
+    boolean draw() {
         // draw arm
         int height = UI.getCanvasHeight();
         int width = UI.getCanvasWidth();
@@ -134,7 +135,7 @@ public class Arm {
      * <p>
      * Not used, but required by questions
      */
-    public void directKinematic() {
+    void directKinematic() {
 
         // midpoint between joints
         double xA = xj1 + 0.5 * getXjDiff();
@@ -165,11 +166,11 @@ public class Arm {
     /**
      * Motor angles from tool position updetes variables of the class
      *
-     * @param xt_new
-     * @param yt_new
+     * @param xt_new x position of the mouse
+     * @param yt_new y position of the mouse
      * @return true iff valid_state === true
      */
-    public boolean inverseKinematic(double xt_new, double yt_new) {
+    boolean inverseKinematic(double xt_new, double yt_new) {
         if (xt_new < MIN_X || yt_new < MIN_Y || xt_new > MIN_X + WIDTH
                 || yt_new > MIN_Y + HEIGHT) {
             valid_state = false;
@@ -239,17 +240,17 @@ public class Arm {
     }
 
     // returns angle of motor 1
-    public double get_theta1() {
+    double get_theta1() {
         return theta1;
     }
 
     // returns angle of motor 2
-    public double get_theta2() {
+    double get_theta2() {
         return theta2;
     }
 
     // sets angle of the motors
-    public void set_angles(double t1, double t2) {
+    void set_angles(double t1, double t2) {
         theta1 = t1;
         theta2 = t2;
     }
@@ -257,14 +258,14 @@ public class Arm {
     // returns motor control signal
     // for motor to be in position(angle) theta1
     // linear intepolation
-    public int get_pwm1() {
+    int get_pwm1() {
         int pwm = 0;
         pwm = (int) (11.498464 * Math.toDegrees(theta1) + 221.115182);
         return pwm;
     }
 
     // ditto for motor 2
-    public int get_pwm2() {
+    int get_pwm2() {
         int pwm = 0;
         pwm = (int) (10.63547 * Math.toDegrees(theta2) + 974.026574);
         //pwm = (int)(pwm2_90 + (theta2 - 90)*pwm2_slope);
