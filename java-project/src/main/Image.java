@@ -13,7 +13,7 @@ public class Image {
     private static final double MIN_X = 270;
     private static final double WIDTH = 150;
     private static final double MIN_Y = 260;
-    private static final double HEIGHT = 120;
+    private static final double HEIGHT = 130;
 
     private static final int BUFFER = 3;
 
@@ -252,7 +252,7 @@ public class Image {
 
                         if (value == 1) {
                             UI.setColor(x == sizeX-1? Color.black:Color.BLUE);
-                            image[x][y] = true;
+                            image[(int) ((sizeX - x) - 1)][y] = true;
                         } else if (value != 0) {
                             throw new IllegalArgumentException();
                         }
