@@ -67,7 +67,7 @@ public class Image {
                 }
             }
         }
-        boolean[][][] mask = new boolean[(int) sizeX][(int) sizeY][4];
+        boolean[][][] mask = new boolean[(int) sizeX][(int) sizeY][8];
         for (int x = 0; x < sizeX; x++) {
             for (int y = 0; y < sizeY; y++) {
                 points[x][y] = newPoints[x][y];
@@ -82,6 +82,19 @@ public class Image {
                 }
                 if (x + 1 < sizeX && y + 1 < sizeY && newPoints[x + 1][y + 1] && !newPoints[x][y + 1] && !newPoints[x + 1][y]) {
                     mask[x][y][3] = true;
+                }
+
+                if (x > 0 && newPoints[x - 1][y]) {
+                    mask[x][y][4] = true;
+                }
+                if (y + 1 < sizeY && x > 0 && newPoints[x - 1][y + 1] && !newPoints[x - 1][y] && !newPoints[x][y + 1]) {
+                    mask[x][y][5] = true;
+                }
+                if (y + 1 < sizeY && newPoints[x][y + 1]) {
+                    mask[x][y][6] = true;
+                }
+                if (y > 0 && x > 0 && newPoints[x - 1][y - 1] && !newPoints[x][y - 1] && !newPoints[x - 1][y]) {
+                    mask[x][y][7] = true;
                 }
             }
         }
@@ -106,6 +119,23 @@ public class Image {
         if (mask[x][y][3]) {
             mask[x][y][3] = false;
             return new PointXY(1, 1, true);
+        }
+
+        if (mask[x][y][4]) {
+            mask[x][y][4] = false;
+            return new PointXY(-1, 0, true);
+        }
+        if (mask[x][y][5]) {
+            mask[x][y][5] = false;
+            return new PointXY(-1, 1, true);
+        }
+        if (mask[x][y][6]) {
+            mask[x][y][6] = false;
+            return new PointXY(0, 1, true);
+        }
+        if (mask[x][y][7]) {
+            mask[x][y][7] = false;
+            return new PointXY(-1, -1, true);
         }
         return null;
     }
