@@ -11,7 +11,7 @@ import java.util.NoSuchElementException;
 
 public class Image {
     private static final double MIN_X = 270;
-    private static final double WIDTH = 150;
+    private static final double WIDTH = 130;//150
     private static final double MIN_Y = 260;
     private static final double HEIGHT = 130;
 
@@ -106,34 +106,42 @@ public class Image {
         int y = (int) point.get_y();
         if (mask[x][y][0]) {
             mask[x][y][0] = false;
+            mask[x][y-1][6] = false;
             return new PointXY(0, -1, true);
         }
         if (mask[x][y][1]) {
             mask[x][y][1] = false;
+            mask[x+1][y-1][5] = false;
             return new PointXY(1, -1, true);
         }
         if (mask[x][y][2]) {
             mask[x][y][2] = false;
+            mask[x+1][y][4] = false;
             return new PointXY(1, 0, true);
         }
         if (mask[x][y][3]) {
             mask[x][y][3] = false;
+            mask[x+1][y+1][7] = false;
             return new PointXY(1, 1, true);
         }
 
         if (mask[x][y][4]) {
+            mask[x-1][y][2] = false;
             mask[x][y][4] = false;
             return new PointXY(-1, 0, true);
         }
         if (mask[x][y][5]) {
+            mask[x-1][y+1][1] = false;
             mask[x][y][5] = false;
             return new PointXY(-1, 1, true);
         }
         if (mask[x][y][6]) {
+            mask[x][y+1][0] = false;
             mask[x][y][6] = false;
             return new PointXY(0, 1, true);
         }
         if (mask[x][y][7]) {
+            mask[x-1][y-1][3] = false;
             mask[x][y][7] = false;
             return new PointXY(-1, -1, true);
         }
