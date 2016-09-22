@@ -17,7 +17,7 @@ public class Arm {
     static final double MIN_X = 270;
     static final double WIDTH = 150;
     static final double MIN_Y = 260;
-    static final double HEIGHT = 120;
+    static final double HEIGHT = 130;
 
     // fixed arm parameters (coordinates of the motor
     // (measured in pixels of the picture))
