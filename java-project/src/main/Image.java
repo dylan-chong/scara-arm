@@ -15,7 +15,7 @@ public class Image {
     private static final double MIN_Y = 260;
     private static final double HEIGHT = 120;
 
-    private static final int BUFFER = 10;
+    private static final int BUFFER = 3;
 
     private double sizeX;
     private double sizeY;
@@ -30,7 +30,7 @@ public class Image {
     private ArrayList<Angle> makeAngles(boolean[][] points) {
         ArrayList<Angle> path = new ArrayList<>();
         boolean[][][] mask = makeMask(points);
-        PointXY prevPoint = null;
+        PointXY prevPoint;
 
         for (PointXY point = findNext(null, points, mask); point != null; point = findNext(point, points, mask)) {
             for (int i =0; i < BUFFER; i++)
@@ -45,8 +45,9 @@ public class Image {
                 double y = point.get_y() + deltaPoint.get_y();
                 prevPoint = point;
                 point = new PointXY(x, y, true);
-                UI.drawLine(prevPoint.get_x(), prevPoint.get_y(), point.get_x(), point.get_y());
+                UI.drawLine(prevPoint.get_x() * 3, prevPoint.get_y() * 3, point.get_x() * 3, point.get_y() * 3);
                 path.add(new Angle(point.get_x(), point.get_y(), true));
+                UI.printf("%d,%d%n", (int)point.get_x(), (int)point.get_y());
 
             }
             for (int i =0; i < BUFFER; i++)
@@ -56,19 +57,30 @@ public class Image {
     }
 
     private boolean[][][] makeMask(boolean[][] points) {
+        boolean[][] newPoints = new boolean[(int) sizeX][(int) sizeY];
+        for (int x = 0; x < sizeX; x++) {
+            for (int y = 0; y < sizeY; y++) {
+                if (points[x][y] && ((y <= 0 || !points[x][y - 1]) || (x <= 0 || !points[x - 1][y]) || (y + 1 >= sizeY || !points[x][y + 1]) || (x + 1 >= sizeX || !points[x + 1][y]))) {
+                    newPoints[x][y] = true;
+                } else {
+                    newPoints[x][y] = false;
+                }
+            }
+        }
         boolean[][][] mask = new boolean[(int) sizeX][(int) sizeY][4];
         for (int x = 0; x < sizeX; x++) {
             for (int y = 0; y < sizeY; y++) {
-                if (y > 0 && points[x][y - 1]) {
+                points[x][y] = newPoints[x][y];
+                if (y > 0 && newPoints[x][y - 1]) {
                     mask[x][y][0] = true;
                 }
-                if (x + 1 < sizeX && y > 0 && points[x + 1][y - 1] && !points[x][y - 1] && !points[x + 1][y]) {
+                if (x + 1 < sizeX && y > 0 && newPoints[x + 1][y - 1] && !newPoints[x][y - 1] && !newPoints[x + 1][y]) {
                     mask[x][y][1] = true;
                 }
-                if (x + 1 < sizeX && points[x + 1][y]) {
+                if (x + 1 < sizeX && newPoints[x + 1][y]) {
                     mask[x][y][2] = true;
                 }
-                if (x + 1 < sizeX && y + 1 < sizeY && points[x + 1][y + 1] && !points[x][y + 1] && !points[x + 1][y]) {
+                if (x + 1 < sizeX && y + 1 < sizeY && newPoints[x + 1][y + 1] && !newPoints[x][y + 1] && !newPoints[x + 1][y]) {
                     mask[x][y][3] = true;
                 }
             }
@@ -279,17 +291,20 @@ public class Image {
         return angles;
     }
 
-    public void savePwmFile() {
+    public String savePwmFile() {
         try {
-            PrintWriter writer = new PrintWriter(new FileWriter(UIFileChooser.save("Save PWM file")));
+            String filename = UIFileChooser.save("Save PWM file");
+            PrintWriter writer = new PrintWriter(new FileWriter(filename));
             for (Angle angle : angles) {
                 writer.printf("%d,%d,%d%n", angle.pwm1, angle.pwm2, angle.penDown ? 2000 : 1000);
             }
             writer.print("1500,1500,1000");
             writer.close();
+            return filename;
         } catch (IOException e) {
             e.printStackTrace();
         }
+        return null;
     }
 
     private class Angle {
@@ -306,7 +321,7 @@ public class Image {
             y = (oy / sizeY) * HEIGHT + MIN_Y;
 
             Arm arm = new Arm();
-            arm.inverseKinematic(ox, oy);
+            arm.inverseKinematic(x, y);
 
             theta1 = arm.get_theta1();
             theta2 = arm.get_theta2();
@@ -318,7 +333,19 @@ public class Image {
 
     public static void main(String args[]) {
         Image img = new Image();
-        img.savePwmFile();
-        UI.println("DONE");
+        String filename = img.savePwmFile();
+        if (filename != null) {
+            String dest = String.format("pi@%s:~/Arm/%s", PiController.PI_IP, filename);
+            String cmd = String.format("scp -i %s %s %s", PiController.PRIVATE_KEY_FILE, filename, dest);
+            try {
+                Runtime.getRuntime().exec(cmd);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            UI.println("DONE");
+        }
+        else {
+            UI.println("CANCELLED");
+        }
     }
 }
