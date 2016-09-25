@@ -11,7 +11,7 @@ import java.util.Scanner;
  */
 class PiController {
     private static final String SRC_FILE = "pwm.csv";
-    public static final String PI_IP = "10.140.59.43";
+    public static final String PI_IP = "10.140.133.175";
     public static final String PRIVATE_KEY_FILE = "keys/rpi";
     private static final String DEST_FILE = "~/Arm/pwm.csv";
 

@@ -10,10 +10,10 @@ import java.util.ArrayList;
 import java.util.NoSuchElementException;
 
 public class Image {
-    private static final double MIN_X = 270;
-    private static final double WIDTH = 130;//150
+    private static final double MIN_X = 285;
+    private static final double WIDTH = 100;//150
     private static final double MIN_Y = 260;
-    private static final double HEIGHT = 130;
+    private static final double HEIGHT = 100;
 
     private static final int BUFFER = 3;
 
@@ -373,14 +373,15 @@ public class Image {
         Image img = new Image();
         String filename = img.savePwmFile();
         if (filename != null) {
-            String dest = String.format("pi@%s:~/Arm/%s", PiController.PI_IP, filename);
+            String destFile = filename.substring(filename.indexOf("/"));
+            String dest = String.format("pi@%s:~/Arm/%s", PiController.PI_IP, destFile);
             String cmd = String.format("scp -i %s %s %s", PiController.PRIVATE_KEY_FILE, filename, dest);
             try {
                 Runtime.getRuntime().exec(cmd);
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            UI.println("DONE");
+            UI.printf("DONE: sent to %s%n", dest);
         }
         else {
             UI.println("CANCELLED");
