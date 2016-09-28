@@ -27,6 +27,11 @@ public class Image {
         angles = makeAngles(getPoints(file));
     }
 
+    /**
+     * Constructs a semi-optimal path through the image
+     * @param points a 2D array of points that need to be drawn
+     * @return a list of the points to move through
+     */
     private ArrayList<Angle> makeAngles(boolean[][] points) {
         ArrayList<Angle> path = new ArrayList<>();
         boolean[][][] mask = makeMask(points);
@@ -56,7 +61,15 @@ public class Image {
         return path;
     }
 
+    /**
+     * Constructs an 8-point array (representing a 3x3 grid missing the center point) that stores whether or not
+     * neighbouring pixels need to be visited.
+     * @param points a 2D array of black/white pixels (black = true, white = false)
+     * @return the mask of neighbouring pixels
+     */
     private boolean[][][] makeMask(boolean[][] points) {
+        // First remove any points that are fully surrounded in left-top-right-bottom directions.
+        // This prevents drawing black spots (which would take far too long)
         boolean[][] newPoints = new boolean[(int) sizeX][(int) sizeY];
         for (int x = 0; x < sizeX; x++) {
             for (int y = 0; y < sizeY; y++) {
@@ -67,6 +80,8 @@ public class Image {
                 }
             }
         }
+
+        // Note that diagonals make sure that there are no points between each other before marking as +
         boolean[][][] mask = new boolean[(int) sizeX][(int) sizeY][8];
         for (int x = 0; x < sizeX; x++) {
             for (int y = 0; y < sizeY; y++) {
@@ -101,9 +116,17 @@ public class Image {
         return mask;
     }
 
+    /**
+     * Get the offset to the next point in the line, updating mask to reflect changes in neighbours.
+     * @param point the current point in the line
+     * @param mask the 3D array of neighbours of points
+     * @return a point with coords relative to the current point
+     */
     private PointXY moveNext(PointXY point, boolean[][][] mask) {
         int x = (int) point.get_x();
         int y = (int) point.get_y();
+
+        // Remember to clear the neighbour in the opposite direction as well, to prevent backtracking.
         if (mask[x][y][0]) {
             mask[x][y][0] = false;
             mask[x][y-1][6] = false;
@@ -148,69 +171,15 @@ public class Image {
         return null;
     }
 
-    /*private ArrayList<Angle> makeAngles(boolean[][] points) {
-        ArrayList<Angle> angles = new ArrayList<>();
-        boolean[][] mask = new boolean[(int) sizeX][(int) sizeY];
-        PointXY last = null;
-        for (PointXY point = findNext(null, points, mask); point != null; point = findNext(point, points, mask)) {
-            int x = (int) point.get_x();
-            int y = (int) point.get_y();
-            if (last != null && Point.distance(x,y,last.get_x(),last.get_y()) >= 2) {
-                for (int i =0; i < 4; i++)
-                angles.add(new Angle(last.get_x(), last.get_y(), false));
-            }
-            if (y > 0 && points[x][y - 1]) {
-                angles.add(new Angle(x, y - 1, true));
-                angles.add(new Angle(x, y, true));
-                UI.drawLine(x*3,y*3,x*3,(y-1)*3);
-            }
-            if (x + 1 < sizeX && y > 0 && points[x + 1][y - 1]) {
-                angles.add(new Angle(x + 1, y - 1, true));
-                angles.add(new Angle(x, y, true));
-                UI.drawLine(x*3,y*3,(x+1)*3,(y-1)*3);
-            }
-            if (x + 1 < sizeX && points[x + 1][y]) {
-                angles.add(new Angle(x + 1, y, true));
-                angles.add(new Angle(x, y, true));
-                UI.drawLine(x*3,y*3,(x+1)*3,y*3);
-            }
-            if (x + 1 < sizeX && y + 1 < sizeY && points[x + 1][y + 1]) {
-                angles.add(new Angle(x + 1, y + 1, true));
-                angles.add(new Angle(x, y, true));
-                UI.drawLine(x*3,y*3,(x+1)*3,(y+1)*3);
-            }
-            last = point;
-        }
-        return angles;
-    }*/
-
-    /*private PointXY findNext(PointXY point, boolean[][] points, boolean[][] mask) {
-        int x = point != null ? (int) point.get_x() : 0;
-        int y = point != null ? (int) point.get_y() : 0;
-        int nearX = -1;
-        int nearY = -1;
-        double dist = -1;
-
-        for (int i = 0; i < sizeX; i++) {
-            for (int j = 0; j < sizeY; j++) {
-                if (points[i][j] && !mask[i][j]) {
-                    double newDist = Point2D.distance(x, y, i, j);
-                    if (newDist < dist || dist == -1) {
-                        nearX = i;
-                        nearY = j;
-                        dist = newDist;
-                    }
-                }
-            }
-        }
-        if (dist != -1) {
-            mask[nearX][nearY] = true;
-            return new PointXY(nearX, nearY, true);
-        }
-        return null;
-    }*/
-
+    /**
+     * Finds the next starting point for a line
+     * @param point the current point
+     * @param points 2D array of points that exist
+     * @param mask 3D array of neighbours of points
+     * @return a point representing the beginning of a new line
+     */
     private PointXY findNext(PointXY point, boolean[][] points, boolean[][][] mask) {
+        // Start in top left corner if no prior point exists
         int x = point != null ? (int) point.get_x() : 0;
         int y = point != null ? (int) point.get_y() : 0;
         int nearX = -1;
@@ -221,6 +190,7 @@ public class Image {
             for (int j = 0; j < sizeY; j++) {
                 if (points[i][j]) {
                     boolean alreadyDrawn = true;
+                    // if any neighbours exist in mask, then this point can be drawn from
                     for (boolean m : mask[i][j]) {
                         if (m) {
                             alreadyDrawn = false;
@@ -229,6 +199,7 @@ public class Image {
                     if (alreadyDrawn) {
                         continue;
                     }
+                    // the make it faster, just find the closest valid point to the current point
                     double newDist = Point2D.distance(x, y, i, j);
                     if (newDist < dist || dist == -1) {
                         nearX = i;
@@ -244,6 +215,11 @@ public class Image {
         return null;
     }
 
+    /**
+     * Reads a PBM file (P1, ASCII type) and produces a 2D grid of black/white points
+     * @param file the PBM file url to read from
+     * @return a 2D boolean array of points
+     */
     private boolean[][] getPoints(String file) {
         try {
             BufferedInputStream scan = new BufferedInputStream(new FileInputStream(file));
@@ -275,6 +251,11 @@ public class Image {
         }
     }
 
+    /**
+     * A helper method for getPoints() that finds the next metadata to read (ignoring comments and new lines)
+     * @param scan The BufferedInputStream to read from
+     * @return the next token in the stream
+     */
     private String getNextToken(BufferedInputStream scan) {
         String out = "";
         try {
@@ -304,6 +285,11 @@ public class Image {
         }
     }
 
+    /**
+     * A helper method for getPoints() that finds the next pixel to read (ignoring comments and new lines)
+     * @param scan The BufferedInputStream to read from
+     * @return the next token in the stream
+     */
     private String getNextValue(BufferedInputStream scan) {
         try {
             while (true) {
@@ -329,6 +315,10 @@ public class Image {
         return angles;
     }
 
+    /**
+     * Saves the current set of angles to a PWM file (CSV of pwm1,pwm2,pwm3)
+     * @return the file url to save to
+     */
     public String savePwmFile() {
         try {
             String filename = UIFileChooser.save("Save PWM file");
@@ -336,6 +326,7 @@ public class Image {
             for (Angle angle : angles) {
                 writer.printf("%d,%d,%d%n", angle.pwm1, angle.pwm2, angle.penDown ? 2000 : 1000);
             }
+            // Move back to rest position when finished
             writer.print("1500,1500,1000");
             writer.close();
             return filename;
@@ -373,15 +364,16 @@ public class Image {
         Image img = new Image();
         String filename = img.savePwmFile();
         if (filename != null) {
-            String destFile = filename.substring(filename.indexOf("/"));
+            String destFile = filename.substring(filename.lastIndexOf("/") + 1);
             String dest = String.format("pi@%s:~/Arm/%s", PiController.PI_IP, destFile);
             String cmd = String.format("scp -i %s %s %s", PiController.PRIVATE_KEY_FILE, filename, dest);
             try {
                 Runtime.getRuntime().exec(cmd);
+                UI.printf("DONE: sent to %s (%s) %n", dest, cmd);
             } catch (IOException e) {
                 e.printStackTrace();
+                UI.println("FAIL");
             }
-            UI.printf("DONE: sent to %s%n", dest);
         }
         else {
             UI.println("CANCELLED");
