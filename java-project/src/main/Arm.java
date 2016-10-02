@@ -182,6 +182,7 @@ public class Arm {
 
         valid_state = true;
 
+        // *************** MOTOR 1 ***************
         // distance between pen and motor
         double d1 = getDistanceBetweenPenAndMotor(1);
         if (d1 > 2 * r) {
@@ -207,7 +208,7 @@ public class Arm {
             valid_state = false;
             return false;
         }
-
+        // *************** MOTOR 2 ***************
         // distance between pen and motor
         double d2 = getDistanceBetweenPenAndMotor(2);
         if (d2 > 2 * r) {
@@ -233,6 +234,7 @@ public class Arm {
             valid_state = false;
             return false;
         }
+        // *************** ***************
 
         UI.printf("xt:%3.1f, yt:%3.1f\n", xt, yt);
         UI.printf("pwm1:%d, pwm2:%d\n", get_pwm1(), get_pwm2());
